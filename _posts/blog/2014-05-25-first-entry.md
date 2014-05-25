@@ -54,10 +54,11 @@ My lovely Baybay.
 <iframe width="560" height="315" src="//www.youtube.com/embed/x4prTw5kE40" frameborder="0" allowfullscreen></iframe>
 -->
 <div style="text-align:center">
-<embed src="//www.youtube.com/embed/x4prTw5kE40" frameborder="0" allowfullscreen>></embed>
+<embed src="//www.youtube.com/embed/x4prTw5kE40" frameborder="0" allowfullscreen width="560" height="315"></embed>
 </div>
 
 #Insert video from youku
 <div style="text-align:center">
-<embed src="http://player.youku.com/player.php/sid/XNTUxNDY1NDY4/v.swf" allowFullScreen="true" quality="high" width="480" height="400" align="middle" allowScriptAccess="always" type="application/x-shockwave-flash"></embed>
+<embed src="http://player.youku.com/player.php/sid/XNTUxNDY1NDY4/v.swf" allowFullScreen="true" quality="high" width="480" height="400" 
+align="middle" allowScriptAccess="always" type="application/x-shockwave-flash"></embed>
 </div>
