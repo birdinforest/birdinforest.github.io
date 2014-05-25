@@ -89,20 +89,25 @@ pre ol{margin-left:25px;list-style-type:decimal;}
     box-shadow:inset -1px 0 0 rgba(0,0,0,0.3);
     background-size:cover
 	**/
-    background-image:url("../images/baybay.png");
-}
-.opinion .aside{
-	background:#000;
+	background:#fff;
     box-shadow:inset -1px 0 0 rgba(0,0,0,0.3);
     background-size:cover
+    background-image:url("../images/avatar.jpg");
+}
+.opinion .aside{
+	background:#fff;
+    box-shadow:inset -1px 0 0 rgba(0,0,0,0.3);
+    background-size:cover
+    background-image:url("../images/avatar.jpg");
 	/**
     background-image:url(https://dnqgz544uhbo8.cloudfront.net/_/fp/img/bestof/june-2013.CaUUbO2jIECgCmldhmxCCA.jpg);
 	**/
 }
 .project .aside{
-	background:#000;
+	background:#fff;
     box-shadow:inset -1px 0 0 rgba(0,0,0,0.3);
     background-size:cover
+    background-image:url("../images/avatar.jpg");
 	/**
     background-image:url('https://d233eq3e3p3cv0.cloudfront.net/max/1000/0*kTUZamBulGQZg1MW.jpeg')
 	**/
