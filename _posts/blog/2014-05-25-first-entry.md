@@ -46,4 +46,4 @@ int& bubbleSort(int a_sortList[], int a_max)
 
 ##Insert image
 My lovely Baybay.
-![test](../image/baybay.jpg)
+![test](../../images/baybay.jpg)
