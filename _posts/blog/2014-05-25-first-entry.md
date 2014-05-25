@@ -9,14 +9,14 @@ description: My first entry on GitHub blog
 Generally, this is a test entry.
 
 ##Test code hightlight
-<code class="prettyprint">
+<pre class="prettyprint">
 $('#disqus_container .comment').on('click',function(){
         $(this).html('加载中...');
         var disqus_shortname = 'beiyuu';
         var that = this;
         BYB.includeScript('http://' + disqus_shortname + '.disqus.com/embed.js',function(){$(that).remove()}); //这是一个加载js的函数
 });
-</code> 
+</pre> 
 
 <pre class="prettyprint">
 // sort list from less to greater
