@@ -50,4 +50,9 @@ My lovely Baybay.
 ![test](/images/test/baybay.jpg)
 
 #Insert video
+<!--
 <iframe width="560" height="315" src="//www.youtube.com/embed/x4prTw5kE40" frameborder="0" allowfullscreen></iframe>
+-->
+<div style="text-align:center">
+<embed src="//www.youtube.com/embed/x4prTw5kE40" frameborder="0" allowfullscreen>></embed>
+</div>
