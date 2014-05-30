@@ -81,7 +81,7 @@ description: 通过在网上查找实现技能buff系统的资料，复习了有
 
     buffList.remove_if(std::mem_fun(&Buff::hasTimedOut));
 
-根据作者的介绍，他是援引于另外一个[提问的解答][2].
+根据作者的介绍，他是援引于另外一个[提问的解答][].
 
 ## 另一个提问
 这个提问问的问题很类似，既是在update列表项的同时，删除update过的item。
@@ -177,16 +177,16 @@ Vector使用array来组织信息，在其中一个item被移除的时候，它�
 
 ####debug中对于内存地址的观察
 itor=1的时候，[ptr]:0x004aab74{1}。
-![Alt text](images/blog/cpp_iterator_001.jpg)
+![Alt text](/images/blog/cpp_iterator_001.jpg)
 执行intVector.erase(it++)之后，[ptr]0x004aab78{3}。此时，[ptr]:0x004aab74应该成为了2。
-![Alt text](images/blog/cpp_iterator_002.jpg)
+![Alt text](/images/blog/cpp_iterator_002.jpg)
 此时，返回while loop之后，进行++itor时，出错
-![Alt text](images/blog/cpp_iterator_003.jpg)
+![Alt text](/images/blog/cpp_iterator_003.jpg)
 
 * 疑惑: Vector中使用 intList.erase(itor++) 出现"iterator is incompatible"错误的原因可能是因为itor指向的结构发生了变化？
 
 ##对于问题的解答
-对于这个如何在update之后马上从技能列表中删除此技能的问题，[Mike][3]给出的解答是：
+对于这个如何在update之后马上从技能列表中删除此技能的问题，[Mike][]给出的解答是：
 
     // Note: Using the pre-increment operator is preferred     for iterators because
     //       there can be a performance gain.
@@ -277,7 +277,7 @@ std::mem_fun的实现涉及std::transform。
 返回相反boolean值
 #### std::remove_if
 移除符合条件的elements。
-* [std::remove_if在c++11里的实现][4]：
+* [std::remove_if在c++11里的实现][]：
 
 
     enter code hertemplate <class ForwardIterator, class UnaryPredicate>
@@ -316,8 +316,7 @@ After move from str2, str2 = 'Hello'
 
 [std::move例子的完整代码][5]
 
-[1]     [http://gamedev.stackexchange.com/questions/46772/how-to-implement-buffs-debuffs-temporary-stat-changes-in-an-rpg]
-[2]     [http://stackoverflow.com/questions/596162/can-you-remove-elements-from-a-stdlist-while-iterating-through-it/596708#596708]
-[3]     [http://stackoverflow.com/users/65004/mike]
-[4]     [http://www.cplusplus.com/reference/algorithm/remove_if/]
-[5]     [http://en.cppreference.com/w/cpp/utility/move]
+[提问的解答]     [http://stackoverflow.com/questions/596162/can-you-remove-elements-from-a-stdlist-while-iterating-through-it/596708#596708]
+[Mike]     [http://stackoverflow.com/users/65004/mike]
+[std::remove_if在c++11里的实现]     [http://www.cplusplus.com/reference/algorithm/remove_if/]
+[std::move例子的完整代码]     [http://en.cppreference.com/w/cpp/utility/move]
