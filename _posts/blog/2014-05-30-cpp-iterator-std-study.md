@@ -318,7 +318,7 @@ After move from str2, str2 = 'Hello'
 
 [std::move例子的完整代码][5]
 
-[提问的解答]     http://stackoverflow.com/questions/596162/can-you-remove-elements-from-a-stdlist-while-iterating-through-it/596708#596708 "提问的解答"
-[Mike]     http://stackoverflow.com/users/65004/mike	"Mike"
-[std::remove_if在c++11里的实现]     http://www.cplusplus.com/reference/algorithm/remove_if/		"std::remove_if在c++11里的实现"
-[5]     http://en.cppreference.com/w/cpp/utility/move
+[提问的解答]:     http://stackoverflow.com/questions/596162/can-you-remove-elements-from-a-stdlist-while-iterating-through-it/596708#596708 "提问的解答"
+[Mike]:     http://stackoverflow.com/users/65004/mike	"Mike"
+[std::remove_if在c++11里的实现]:     http://www.cplusplus.com/reference/algorithm/remove_if/		"std::remove_if在c++11里的实现"
+[5]:     http://en.cppreference.com/w/cpp/utility/move
