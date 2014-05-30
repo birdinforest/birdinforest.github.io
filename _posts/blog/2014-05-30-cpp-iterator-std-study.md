@@ -6,6 +6,7 @@ description: 通过在网上查找实现技能buff系统的资料，复习了有
 ---
 
 **以下仅是我在目前的能力下对相关知识的理解，也许有很多地方存在谬误。以后我会不断的修正。**
+**因为不清楚一些c++中的概念词的中文译名，所以暂时以英文单词取代。**
 
 ## 起因
 最近一直在想如何更好的解决有关人物移动速度buff的恢复。
@@ -180,6 +181,7 @@ itor=1的时候，[ptr]:0x004aab74{1}。
 ![Alt text](/images/blog/cpp_iterator_001.jpg)
 执行intVector.erase(it++)之后，[ptr]0x004aab78{3}。此时，[ptr]:0x004aab74应该成为了2。
 ![Alt text](/images/blog/cpp_iterator_002.jpg)
+**注意上图中，_Myproxy变为nullprt。**
 此时，返回while loop之后，进行++itor时，出错
 ![Alt text](/images/blog/cpp_iterator_003.jpg)
 
