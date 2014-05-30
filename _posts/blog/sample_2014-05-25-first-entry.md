@@ -49,7 +49,7 @@ My lovely Baybay.
 ![test](/images/test/avatar.jpg)
 ![test](/images/test/baybay.jpg)
 
-#Insert video from youtube
+##Insert video from youtube
 <!--
 <iframe width="560" height="315" src="//www.youtube.com/embed/x4prTw5kE40" frameborder="0" allowfullscreen></iframe>
 -->
@@ -57,7 +57,7 @@ My lovely Baybay.
 <embed src="//www.youtube.com/embed/x4prTw5kE40" frameborder="0" allowfullscreen width="560" height="315"></embed>
 </div>
 
-#Insert video from youku
+##Insert video from youku
 <div style="text-align:center">
 <embed src="http://player.youku.com/player.php/sid/XNTUxNDY1NDY4/v.swf" allowFullScreen="true" quality="high" width="480" height="400" 
 align="middle" allowScriptAccess="always" type="application/x-shockwave-flash"></embed>
