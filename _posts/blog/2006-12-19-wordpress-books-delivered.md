@@ -1,6 +1,6 @@
 ---
 layout:     post
-title:      [旧]买的书到了
+title:      买的书到了
 category: blog
 description: No description
 ---
