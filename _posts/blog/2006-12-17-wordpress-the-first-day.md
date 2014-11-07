@@ -1,6 +1,6 @@
 ---
 layout:     post
-title:      The First Day
+title:      [旧]第一天
 category: blog
 description: No description
 ---

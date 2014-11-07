@@ -2,7 +2,7 @@
 layout:     post
 title:      对于c++中有关iterator的学习以及几个std方法的理解
 category: blog
-description: 通过在网上查找实现技能buff系统的资料，复习了有关iterator的概念，同时学习到了几个std方法_test
+description: 通过在网上查找实现技能buff系统的资料，复习了有关iterator的概念，同时学习到了几个std方法
 ---
 
 **以下仅是我在目前的能力下对相关知识的理解，也许有很多地方存在谬误。以后我会不断的修正。**
