@@ -1,6 +1,6 @@
 ---
 layout:     post
-title:      买的书到了
+title:      买的书到了_2006/12/19
 category: blog
 description: No description
 ---
