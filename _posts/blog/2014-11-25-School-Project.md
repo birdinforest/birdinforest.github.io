@@ -5,13 +5,6 @@ category: project
 description: School Project in AIE 
 ---
 
----
-layout: post
-title: School Project
-category: project
-description: School Project in AIE 
----
-
 # OpenGL Demo
 This is a assignment for demonstration of 3D graphic knowledge. This is a group project, I coorporate with another class mate, Kitman Yiu. This demo is based on OpenGL. We also used 3rd part framework from school(AIE framework), which provide basic 3d model import and camera transform API.
 
