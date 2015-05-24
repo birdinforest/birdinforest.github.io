@@ -1,0 +1,1197 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+ 
+   <title>birdinforest</title>
+   <link href="http://birdinforest.com/atom.xml" rel="self" type="application/atom+xml"/>
+   <link href="http://birdinforest.com" rel="alternate" type="text/html" />
+   <updated>2015-05-24T13:00:26+10:00</updated>
+   <id>http://birdinforest.com</id>
+   <author>
+     <name></name>
+     <email></email>
+   </author>
+
+   
+   <entry>
+     <title>Unity3D项目接入移动基地（和游戏）SDK</title>
+     <link href="http://beiyuu.com/AndGame-SDK-Intersection-CHS"/>
+     <updated>2015-05-23T00:00:00+10:00</updated>
+     <id>http://beiyuu.com/AndGame-SDK-Intersection-CHS</id>
+     <content type="html">&lt;p&gt;前段时间公司的游戏需要接入移动基地的SDK，虽然我对于安卓开发与SDK接入基本没什么经验，但是自告奋勇的接下了这个工作任务。没有想到，完成这个看起来简单的工作任务用了两个多星期。不过通过这次实践，我学到了一些安卓开发的基本知识，对于Unity3D与Java也有了更多的了解。&lt;/p&gt;
+
+&lt;h2&gt;SDK接入流程&lt;/h2&gt;
+
+&lt;p&gt;&lt;strong&gt;适用版本V2.2.3&lt;/strong&gt;&lt;/p&gt;
+
+&lt;h3&gt;拷贝文件&lt;/h3&gt;
+
+&lt;ul&gt;
+&lt;li&gt;将SDK文件夹中的assets，libs，res，三个文件夹拷入Assets/Plugins/Android/。&lt;/li&gt;
+&lt;li&gt;将SDK文件夹中Unity3D文件夹中的CMBillingForUnity.jar拷贝到Assets/Plugins/Android/libs.&lt;/li&gt;
+&lt;li&gt;将SDK文件夹中Unity3D文件夹中的CMBillingAndroid.cs拷贝到/Plugins/Android/.&lt;/li&gt;
+&lt;li&gt;将SDK文件夹中Unity3D文件夹中的CMBillingAndroid.cs拷贝到/Plugins/Android/.&lt;/li&gt;
+&lt;/ul&gt;
+
+
+&lt;h3&gt;编辑xml文件&lt;/h3&gt;
+
+&lt;p&gt;编辑Plugins\Android\res\values\g_strings.xml，将游戏主入口(通常为com.unity3d,player.UnityPlayerActivity)填入: &lt;string name=&quot;g_class_name&quot;&gt;om.unity3d,player.UnityPlayerActivity&lt;/string&gt;&lt;/p&gt;
+
+&lt;h3&gt;生成自定义Application所需要的jar文件&lt;/h3&gt;
+
+&lt;h4&gt;eclipse&lt;/h4&gt;
+
+&lt;p&gt;建一个新的project：New-&gt;Other...-&gt;Android-&gt;Android Application Project-&gt;Next。此时来到New Android Application对话框，填入的包名（Package Name）必须与Unity3D项目的Bundle Identifier一致，在这里已com.test.sdk为例。Application Name和Project Name可以随意。然后点击Next-&gt;Finish完成project的创建。&lt;br/&gt;
+在eclipse的Project Explore中，找到src/com.test.sdk/，点击右键-&gt;New-&gt;Class新建一个java文件,文件名必须是CmgameApplication。在文件中输入以下代码：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&quot;java&quot;&gt;    package com.sweatychair.gotoschool;
+
+    import android.app.Application;
+    public class CmgameApplication extends Application {
+        public void onCreate() {
+            System.loadLibrary(&quot;megjb&quot;);
+        }
+    }
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;保存。&lt;br/&gt;
+&lt;em&gt;这段代码扩展了App中的Application类, 在Application初始化的时候，载入library。&lt;/em&gt;&lt;br/&gt;
+删除其他在src/com.test.sdk中的java文件。(通常会有MainActivity.java，删除。)&lt;br/&gt;
+在项目名上点击右键-&gt;Export-&gt;Java-&gt;JAR file。在JAR File Specification对话框中，取消所有选项，勾选bin。在对话框下方，勾选三个选项：Exprot all output folders for checked projects, Export Java source files and resources, Export refactorings for checked projects. 选择输入路径。勾选Compress the contents of the JAR file，点击Finish完成。&lt;br/&gt;
+将jar拷贝到Assets\Plugins\Android\bin&lt;/p&gt;
+
+&lt;h4&gt;Android Studio&lt;/h4&gt;
+
+&lt;p&gt;&lt;a href=&quot;http://www.thegamecontriver.com/2015/04/android-plugin-unity-android-studio.html&quot;&gt;参考文章&lt;/a&gt;&lt;/p&gt;
+
+&lt;h4&gt;有可能在build时出现的错误&lt;/h4&gt;
+
+&lt;p&gt;如果在Unity3D生成APK的时候出现错误：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;Conversion to Dalvik format failed: Unable to execute dex: Multiple dex files define ...
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;查看console中的信息。通常是因为有了重复的Jar文件。删除重复的Jar。&lt;/p&gt;
+
+&lt;p&gt;如果错误为：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;Unable to convert classes into dex format.
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;console信息例子：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;stderr[ UNEXPECTED TOP-LEVEL EXCEPTION: java.lang.IllegalArgumentException: a*lready added: Landroid/support/v4/hardware/display/DisplayManagerCompat;*
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;通常是有了重复的.class文件。在上面生成的jar文件中，可以删除掉不需要的.class文件。方法如下：&lt;br/&gt;
+解压缩CmgameApplication.jar, 在文件夹CmgameApplication/com/test/sdk/中，除去CmgameApplication之外，应该还有其他的.class文件。删除其他文件。&lt;br/&gt;
+在terminal中，将文件夹重新打包为Jar文件：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&quot;bash&quot;&gt;    jar cf CmgameApplication.jar ./com/
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;如果错误为：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;Error building Player: CommandInvokationFailure: Unable to convert classes into dex format. See the Console for details.
+ C:\Program Files\Java\jdk1.7.0_55\bin\java.exe -Xmx1024M -Dcom.android.sdkmanager.toolsdir=&quot;C:/Program Files (x86)/Android/android-sdk\tools&quot; -Dfile.encoding=UTF8 -jar &quot;C:/Program Files (x86)/Unity/Editor/Data/BuildTargetTools/AndroidPlayer\sdktools.jar&quot; -
+
+ stderr[
+
+ UNEXPECTED TOP-LEVEL EXCEPTION:
+ com.android.dx.cf.iface.ParseException: class name (com/companyname/unity/ad/R$attr) does not match path (bin/com/companyname/unity/ad/R$attr.class)
+     at com.android.dx.cf.direct.DirectClassFile.parse0(DirectClassFile.java:520)
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;有可能是jar包中有bin文件夹与com文件夹两个。或者是在不同的jar文件中有重复的.class文件。&lt;/p&gt;
+
+&lt;h3&gt;编辑AndroidManifest.xml&lt;/h3&gt;
+
+&lt;p&gt;􏰔􏰔将SDK\AndroidManifest.xml.activity.txt􏱭􏰛􏰌􏰟􏱮􏱯􏰠与SDK\AndroidManifest.xml.permision.txt内容拷入AndroidManifest.xml􏱭。注意不要有重复内容。&lt;br/&gt;
+删除原来的Activity中的入口定义：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&quot;xml&quot;&gt;    &amp;lt;intent-filter&amp;gt;
+    &amp;lt;action android:name=&quot;android.intent.action.MAIN&quot; /&amp;gt;
+    &amp;lt;category android:name=&quot;android.intent.category.LAUNCHER&quot; /&amp;gt;
+    &amp;lt;/intent-filter&amp;gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3&gt;完成&lt;/h3&gt;
+
+&lt;p&gt;有关SDK功能的实现，参考SDK中的CmBillingAndroidDemo.cs更改代码。&lt;/p&gt;
+
+&lt;h3&gt;可能的错误&lt;/h3&gt;
+
+&lt;ul&gt;
+&lt;li&gt;移动基地的logo显示正常，进入游戏时闪退。可能是游戏的入口没有正确设置。确认游戏主入口在Plugins\Android\res\values\g_strings.xml中正确设置。并且确认AndroidManifest.xml里面设置了游戏入口的Activity.&lt;/li&gt;
+&lt;li&gt;游戏一打开就闪退。可能是SDK/libs/armeabi/libmegjb.so在打包过程中丢失。利用ApkTool解压生成的apk包，查看文件夹armeabi-v7a中是否含有libmegjb.so。如果没有，在Unity3D中将libmegjb.so拷贝到Assets/Plugins/Andorid/armeabi-v7a。如果没有此文件，新建此文件夹。 &lt;br/&gt;
+&lt;em&gt;注意，有关libmegjb.so丢失的解决方法是给予我的尝试，没有理论依据。&lt;/em&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+</content>
+   </entry>
+   
+   <entry>
+     <title>School Project</title>
+     <link href="http://beiyuu.com/School-Project"/>
+     <updated>2014-11-25T00:00:00+11:00</updated>
+     <id>http://beiyuu.com/School-Project</id>
+     <content type="html">&lt;h2&gt;OpenGL Demo&lt;/h2&gt;
+
+&lt;p&gt;This is a assignment for demonstration of 3D graphic knowledge. This is a group project, I coorporate with another class mate, Kitman Yiu. This demo is based on OpenGL. We also used 3rd part framework from school(AIE framework), which provide basic 3d model import and camera transform API.&lt;/p&gt;
+
+&lt;p&gt;In this demo, we created a 3d environment and several animationed 3d characters. The environment contains a terrene created by tessellation, sky box, and a snow box based on GPU particle. We also created some custmoised shaders, like GPUParticle shader, Post Process shader, Shadow Map shader. There are dynimic lighting and several lighing effects, including bloom, ligh scatting and DOF.&lt;/p&gt;
+
+&lt;div style=&quot;text-align:center&quot;&gt;
+&lt;embed src=&quot;//www.youtube.com/embed/FtB7VZ_f80o&quot; frameborder=&quot;0&quot; allowfullscreen width=&quot;560&quot; height=&quot;315&quot;&gt;&lt;/embed&gt;
+&lt;/div&gt;
+
+
+&lt;h2&gt;AI Demo(Behaviour Tree)&lt;/h2&gt;
+
+&lt;p&gt;This is a individual assignment. In a 3D environment, a green colour character trys to run throgh the map from one side to another side. There are some walls on map. A red colour character is patroling on middle of map. If green colour character move too close to red character, red one starts chase green one. Both of them will speed up running until they use out stamina.&lt;/p&gt;
+
+&lt;p&gt;The AI is build by behaviour tree. In this project, I learned how to rig a 3d mode and record animation clips by Blender.&lt;/p&gt;
+
+&lt;div style=&quot;text-align:center&quot;&gt;
+&lt;embed src=&quot;//www.youtube.com/embed/HkY-PzVd4hs&quot; frameborder=&quot;0&quot; allowfullscreen width=&quot;560&quot; height=&quot;315&quot;&gt;&lt;/embed&gt;
+&lt;/div&gt;
+
+
+&lt;h2&gt;More...&lt;/h2&gt;
+</content>
+   </entry>
+   
+   <entry>
+     <title>A Review of Iterator and Several std methods</title>
+     <link href="http://beiyuu.com/cpp-iterator-std-study-EN%20copy"/>
+     <updated>2014-05-30T00:00:00+10:00</updated>
+     <id>http://beiyuu.com/cpp-iterator-std-study-EN copy</id>
+     <content type="html">&lt;p&gt;&lt;strong&gt;As a C++ learner, my points and code might be incorrect or incaccurate. I will update this article during future study.&lt;/strong&gt;
+&lt;strong&gt;This article could also be taken as a practic of english writing from a non native english spearker.LOL&lt;/strong&gt;&lt;/p&gt;
+
+&lt;h2&gt;Start&lt;/h2&gt;
+
+&lt;p&gt;Recently I am confused about how to create a skill buff system, to apply several buff and, what is more important, to correctly unapply those
+buff(Debuff). Then I did some search online, finally got &lt;a href=&quot;http://gamedev.stackexchange.com/questions/46772/how-to-implement-buffs-debuffs-temporary-stat-changes-in-an-rpg&quot;&gt;this&lt;/a&gt; on StatckExchange. In this thread Laurent Couvidou gives out a very detailed
+answer. His answer includes a line using std methods, which let me confused since I only know std containers like List, Vector and some simple methods.
+So that I decided to do a simple study of those std methods.&lt;/p&gt;
+
+&lt;p&gt;Following is the code which confused me:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;buffList.remove_if(std::mem_fun(&amp;amp;Buff::hasTimedOut));
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Laurent Couvidou credits it to a answer from &lt;a href=&quot;http://stackoverflow.com/a/596708/1005455&quot;&gt;StackOverflow&lt;/a&gt;.&lt;/p&gt;
+
+&lt;h2&gt;Move on&lt;/h2&gt;
+
+&lt;p&gt;Then I walked into another class room. There, someone asked a similiar question: how to remove a skill from skill list immediately after a undate.&lt;/p&gt;
+
+&lt;p&gt;His code likes this:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;for (std::list&amp;lt;item*&amp;gt;::iterator i=items.begin();i!=items.end();i++)
+{
+    bool isActive = (*i)-&amp;gt;update();
+    //if (!isActive) 
+    //  items.remove(*i); 
+    //else
+       other_code_involving(*i);
+}
+items.remove_if(CheckItemNotActive);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;But get &quot;List iterator not incrementable&quot; error while doing i++.
+Then I recalled that I did the same thing several months ago, but can&#39;t remember how to fixed it.That is why I start to write blog. We Chinese says that &quot;The palest ink is better than the best memory&quot;.&lt;/p&gt;
+
+&lt;h4&gt;My understanding&lt;/h4&gt;
+
+&lt;p&gt;Like the role of template, which is helping programmer to handle any type of data, the iterator is used to handle elements inside the different container. Internal structs of iterators from List and Vector might be different, but programmer can use them in the similiar way.&lt;/p&gt;
+
+&lt;blockquote&gt;&lt;p&gt;...each container class(vector, list, deque, and so on) defines an iterator type appropriate to the class. For one class, the iterator might be apointer; for another, it might be an object【C++ Primer Plus，P995】&lt;/p&gt;&lt;/blockquote&gt;
+
+&lt;ul&gt;
+&lt;li&gt;question：I understand that a iterator is a pointer. But I don&#39;t know what kind of iterator could be a object.&lt;/li&gt;
+&lt;/ul&gt;
+
+
+&lt;h4&gt;My lab&lt;/h4&gt;
+
+&lt;p&gt;I created a list and a vector, both contain 10 int(1 to 10). Then remove odd numbers from the container by a &#39;for&#39; loop and a &#39;while&#39; loop&lt;/p&gt;
+
+&lt;p&gt;In debug mode, I find that a iterator of std::List is pointing to a node, which contains nextLink, preLink, and value.( In class, I practiced to create a customized bio direction list. )&lt;/p&gt;
+
+&lt;p&gt;After list.erase(itor), that node losts its feature as a iterator.(But I noted that its value is the same to list.end() now.) List.erase(itor) returns the next iterator(++itor). So it can&#39;t be increased.&lt;/p&gt;
+
+&lt;p&gt;Follwing code gets &quot;List iterator not incrementable&quot; error:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;std::list&amp;lt;int&amp;gt; intList;
+for (int i = 0; i &amp;lt; 10; ++i)
+{
+    intList.push_back(i);
+}
+
+for (std::list&amp;lt;int&amp;gt;::iterator i = intList.begin(); i != intList.end(); ++i)
+{
+    if (*itor % 2 == 1)
+    {
+        intList.erase(itor);
+    }
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;We can avoid that error by changing it to:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;std::list&amp;lt;int&amp;gt; intList;
+for (int i = 0; i &amp;lt; 10; ++i)
+{
+    intList.push_back(i);
+}
+
+for (std::list&amp;lt;int&amp;gt;::iterator i = intList.begin(); i != intList.end(); ++i)
+{
+    if (*itor % 2 == 1)
+    {
+        intList.erase(itor++);
+        // or itor = intList.erase(itor);
+    }
+    else
+        ++itor;
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;That due to the difference between pre-increment and post-increment operators.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;intList.erase(itor++);
+intList.erase(++itor);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;For ++itor(fake code)&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;return itor += 1；
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;For itor ++(fake code)&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;copyItor = *this;
+*this += 1;
+return copyItor;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;&lt;strong&gt;（So that, most people argues that using ++i has a performance gain. I guess it is real at least in c++.）&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;Moreover，we should implement the &#39;while&#39; loop to avoid skipping one element per iteration . And a good person in thread reminds that itor = intList.erase(itor) is safer. Yes, he is correct because the lazy coding( intList.erase(itor++) ) cause &quot;iterator is incompatible&quot; error.&lt;/p&gt;
+
+&lt;p&gt;Test code for vector:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;std::vector&amp;lt;int&amp;gt; intVector;
+for (int i = 0; i &amp;lt; 10; ++i)
+{
+    intVector.push_back(i);
+}
+
+std::Vector&amp;lt;int&amp;gt;::iterator itor = intVector.begin();
+while (itor != intVector.end())
+{
+    if (*itor % 2 == 1)
+    {
+        //itor = intVector.erase(itor);
+        intVector.erase(itor++);
+    }
+    else
+        ++itor;
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;About to the reason of this issue, Eric Seppanen says:&lt;/p&gt;
+
+&lt;blockquote&gt;&lt;p&gt;The alternate usage i = items.erase(i) is safer, because it&#39;s equivalent for a list, but will still work if someone changes the container to a vector. With a vector, erase() moves everything to the left to fill the hole. If you try to remove the last item with code that increments the iterator after erasing, the end moves to the left, and the iterator moves to the right-- past the end. And then you crash.&lt;/p&gt;&lt;/blockquote&gt;
+
+&lt;p&gt;However, in my test, before removing the last element, I got error message after the first erase operation. The process is as following:&lt;/p&gt;
+
+&lt;p&gt;When itor==1，genrate:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;    if (*itor % 2 == 1)
+    {
+        //itor = intVector.erase(itor);
+        intVector.erase(itor++);
+    }
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;After it erase int 1, in watch window, I find that itor&#39;s value is 3(int 2 moves left by one step, iterator moves right by one step). So that, It looks that the problem should be skipping one element. It is strange to crash by a comparibility problem.&lt;/p&gt;
+
+&lt;h4&gt;Memery address observation in debug&lt;/h4&gt;
+
+&lt;p&gt;itor==1，pre-erase state. [ptr]:0x004aab74{1}。&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/blog/cpp_iterator_001.jpg&quot; alt=&quot;Alt text&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;after intVector.erase(itor++). [ptr]0x004aab78{3}。I assume that [ptr]:0x004aab74 should be 2。&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/blog/cpp_iterator_002.jpg&quot; alt=&quot;Alt text&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;In above image, I noted that std::Iterator_base12 is nullprt。&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;Then the code move to next step. For while loop, go to comparing( if(itor != intVector.end()) ), crash
+&lt;img src=&quot;/images/blog/cpp_iterator_003.jpg&quot; alt=&quot;Alt text&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;For for loop, go to iteration( ++itor ), crash
+&lt;img src=&quot;/images/blog/cpp_iterator_004.jpg&quot; alt=&quot;Alt text&quot; /&gt;&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;question: I think, in this case, the struct of itorator is changed. But I want to know how does it changed?&lt;/li&gt;
+&lt;/ul&gt;
+
+
+&lt;h2&gt;The answer of &#39;How to remove the post-updated skill from list&#39;&lt;/h2&gt;
+
+&lt;p&gt;&lt;a href=&quot;http://stackoverflow.com/users/65004/mike&quot; title=&quot;Mike&quot;&gt;Mike&lt;/a&gt; gives answer:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;// Note: Using the pre-increment operator is preferred     for iterators because
+//       there can be a performance gain.
+//
+// Note: As long as you are iterating from beginning to     end, without inserting
+//       along the way you can safely save end once;     otherwise get it at the
+//       top of each loop.
+
+std::list&amp;lt; item * &amp;gt;::iterator iter = items.begin();
+std::list&amp;lt; item * &amp;gt;::iterator end  = items.end();
+
+while (iter != items.end())
+{
+    item * pItem = *iter;
+
+    if (pItem-&amp;gt;update() == true)
+    {
+        other_code_involving(pItem);
+        ++iter;
+    }
+    else
+    {
+        // BTW, who is deleting pItem, a.k.a. (*iter)?
+        iter = items.erase(iter);
+    }
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Then, he gives a specific answer for skill update system&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;// This implementation of update executes     other_code_involving(Item *) if
+// this instance needs updating.
+//
+// This method returns true if this still needs future     updates.
+//
+bool Item::update(void)
+{
+    if (m_needsUpdates == true)
+    {
+        m_needsUpdates = other_code_involving(this);
+    }
+
+    return (m_needsUpdates);
+}
+
+// This call does everything the previous loop did!!!     (Including the fact
+// that it isn&#39;t deleting the items that are erased!)
+items.remove_if(std::not1(std::mem_fun(&amp;amp;Item::update)));
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This is a gem(for me at least):&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;items.remove_if(std::not1(std::mem_fun(&amp;amp;Item::update)));
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2&gt;My understanding for those STD methods&lt;/h2&gt;
+
+&lt;p&gt;Before practical experience, my understanding is simple and could be wrong.&lt;/p&gt;
+
+&lt;h4&gt;std::mem_fun&lt;/h4&gt;
+
+&lt;p&gt;Generate a function object, which is Item::update here, then return its result. In this example, the result is a boolean value.&lt;/p&gt;
+
+&lt;h4&gt;std::transform&lt;/h4&gt;
+
+&lt;p&gt;std::transform is implemented in std::mem_fun.
+This method could include a input parameter, a output parameter and a function object.
+It calls the function by the input parameter( if the parameter is a container, it will use every item in the list as parameter of the funcion ), then put result into output parameter(if the output parameter is a containner, result will be put into container one by one)&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&quot;http://www.cplusplus.com/reference/algorithm/transform/&quot;&gt;Test code&lt;/a&gt;：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;int op_increase (int i) { return ++i; }
+
+// example of std::transform
+void std_transform()
+{
+    std::vector&amp;lt;int&amp;gt; foo;
+    std::vector&amp;lt;int&amp;gt; bar;
+
+    // set some values:
+    for (int i=1; i&amp;lt;6; i++)
+        foo.push_back (i*10);                         // foo: 10 20 30 40 50
+
+    bar.resize(foo.size());                         // allocate space
+
+    std::transform (foo.begin(), foo.end(), bar.begin(), op_increase);
+    // bar: 11 21 31 41 51
+
+    // std::plus adds together its two arguments:
+    std::transform (foo.begin(), foo.end(), bar.begin(), foo.begin(), std::plus&amp;lt;int&amp;gt;());
+    // foo: 21 41 61 81 101
+
+    std::cout &amp;lt;&amp;lt; &quot;foo contains:&quot;;
+    for (std::vector&amp;lt;int&amp;gt;::iterator it=foo.begin(); it!=foo.end(); ++it)
+        std::cout &amp;lt;&amp;lt; &#39; &#39; &amp;lt;&amp;lt; *it;
+    std::cout &amp;lt;&amp;lt; &#39;\n&#39;;
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h4&gt;std::not1&lt;/h4&gt;
+
+&lt;p&gt;Return the oppsite of boolean value. In this case, if the skill has been updated, return true.&lt;/p&gt;
+
+&lt;h4&gt;std::remove_if&lt;/h4&gt;
+
+&lt;p&gt;Remove the elements if it match the condition。
+*&lt;a href=&quot;http://www.cplusplus.com/reference/algorithm/remove_if/&quot;&gt;Aprroach of std::remove_if in C++11&lt;/a&gt;：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;enter code hertemplate &amp;lt;class ForwardIterator, class UnaryPredicate&amp;gt;
+ForwardIterator remove_if (ForwardIterator first, ForwardIterator last, UnaryPredicate pred)
+{
+  ForwardIterator result = first;
+  while (first!=last) {
+    if (!pred(*first)) {
+      *result = std::move(*first);
+      ++result;
+    }
+    ++first;
+  }
+  return result;
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h4&gt;std::move&lt;/h4&gt;
+
+&lt;p&gt;It gets the rvalue reference of parameter，convert it to xvalue。
+According to the &lt;a href=&quot;http://en.cppreference.com/w/cpp/utility/move&quot;&gt;example code&lt;/a&gt;&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;std::string str = &quot;Hello&quot;;
+std::vector&amp;lt;std::string&amp;gt; v;
+v.push_back(std::move(str));
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Move string in str to Vector v, avoding copy process。Now str=&quot;&quot;。
+Following feature is very intersting:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;// string move assignment operator is often implemented as swap,
+// in this case, the moved-from object is NOT empty
+std::string str2 = &quot;Good-bye&quot;;
+std::cout &amp;lt;&amp;lt; &quot;Before move from str2, str2 = &#39;&quot; &amp;lt;&amp;lt; str2 &amp;lt;&amp;lt; &quot;&#39;\n&quot;;
+v[0] = std::move(str2);
+std::cout &amp;lt;&amp;lt; &quot;After move from str2, str2 = &#39;&quot; &amp;lt;&amp;lt; str2 &amp;lt;&amp;lt; &quot;&#39;\n&quot;;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;output:&lt;/p&gt;
+
+&lt;p&gt;Before move from str2, str2 = &#39;Good-bye&#39;&lt;/p&gt;
+
+&lt;p&gt;After move from str2, str2 = &#39;Hello&#39;&lt;/p&gt;
+
+&lt;h2&gt;TODO&lt;/h2&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Figure out what the Vector itertor is diffenrent from others&lt;/li&gt;
+&lt;li&gt;Try to use these std methords in my future practice&lt;/li&gt;
+&lt;li&gt;Learn more about data structure&lt;/li&gt;
+&lt;/ul&gt;
+
+</content>
+   </entry>
+   
+   <entry>
+     <title>对于c++中有关iterator的学习以及几个std方法的理解</title>
+     <link href="http://beiyuu.com/cpp-iterator-std-study-CHS"/>
+     <updated>2014-05-30T00:00:00+10:00</updated>
+     <id>http://beiyuu.com/cpp-iterator-std-study-CHS</id>
+     <content type="html">&lt;p&gt;&lt;strong&gt;以下仅是我在目前的能力下对相关知识的理解，也许有很多地方存在谬误。以后我会不断的修正。&lt;/strong&gt;
+&lt;strong&gt;因为不清楚一些c++中的概念词的中文译名，所以暂时以英文单词取代。&lt;/strong&gt;&lt;/p&gt;
+
+&lt;h2&gt;起因&lt;/h2&gt;
+
+&lt;p&gt;最近一直在想如何更好的解决有关人物移动速度buff的恢复。
+在StatckExchange找到了一篇相关的&lt;a href=&quot;http://gamedev.stackexchange.com/questions/46772/how-to-implement-buffs-debuffs-temporary-stat-changes-in-an-rpg&quot;&gt;帖子&lt;/a&gt;。虽然有关的问题我已经有了想法（这个稍后再写）,里面提到的有关在遍历技能列表的方法，移除超过技能使用时间的方法令我学习到了std里面的几个函数，同时复习了std::iterator的知识。&lt;/p&gt;
+
+&lt;h2&gt;skill buff相关代码&lt;/h2&gt;
+
+&lt;p&gt;首先是buff的Struct&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;struct Buff
+{
+    enum Type
+    {
+        Type_BonusMalus,
+        Type_Multiplier,
+    };
+
+    Type type;
+    int value[STAT_COUNT];
+    float timeLeft; // FLT_INFINITY = permanent
+
+    void updateAndApply(float dt, int* stats)
+    {
+        for (int i=0; i&amp;lt;STAT_COUNT; ++i)
+        {
+            switch (type)
+            {
+                case Type_BonusMalus: stats[i] += value[i]; break;
+                case Type_Multiplier: stats[i] *= value[i]; break;
+            }
+        }
+        if (timeLeft != FLT_INFINITY)
+        {
+            timeLeft -= dt;
+        }
+    }
+
+    bool hasTimedOut()
+    {
+        return (timeLeft &amp;lt;= 0.0f);
+    }
+};
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;然后是更新和使用buff&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;void updateAndApplyBuffs(float dt, int* stats)
+{
+    // set base stats
+    setToBase(stats);
+
+    std::list&amp;lt;Buff&amp;gt;::iterator it;
+
+    // apply multipliers first
+    for (it = buffList.begin(); it != buffList.end(); ++it)
+    {
+        if (it-&amp;gt;type == Buff::Type_Multiplier)
+            it-&amp;gt;updateAndApply(dt, stats);
+    }
+
+    // then apply bonuses/maluses
+    for (it = buffList.begin(); it != buffList.end(); ++it)
+    {
+        if (it-&amp;gt;type == Buff::Type_BonusMalus)
+            it-&amp;gt;updateAndApply(dt, stats);
+    }
+
+    // remove buffs that timed out
+    // SuperCool® STL stolen from http://stackoverflow.com/a/596708/1005455
+    buffList.remove_if(std::mem_fun(&amp;amp;Buff::hasTimedOut));
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;最后一句我不明白&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;buffList.remove_if(std::mem_fun(&amp;amp;Buff::hasTimedOut));
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;根据作者的介绍，他是援引于另外一个&lt;a href=&quot;http://stackoverflow.com/questions/596162/can-you-remove-elements-from-a-stdlist-while-iterating-through-it/596708#596708&quot; title=&quot;提问的解答&quot;&gt;提问的解答&lt;/a&gt;.&lt;/p&gt;
+
+&lt;h2&gt;另一个提问&lt;/h2&gt;
+
+&lt;p&gt;这个提问问的问题很类似，既是在update列表项的同时，删除update过的item。&lt;/p&gt;
+
+&lt;p&gt;提问者给出的代码是：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;for (std::list&amp;lt;item*&amp;gt;::iterator i=items.begin();i!=items.end();i++)
+{
+    bool isActive = (*i)-&amp;gt;update();
+    //if (!isActive) 
+    //  items.remove(*i); 
+    //else
+       other_code_involving(*i);
+}
+items.remove_if(CheckItemNotActive);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;而这会导致i++时出现报错：&lt;/p&gt;
+
+&lt;blockquote&gt;&lt;p&gt;&quot;List iterator not incrementable&quot;&lt;/p&gt;&lt;/blockquote&gt;
+
+&lt;h4&gt;我理解的原因&lt;/h4&gt;
+
+&lt;p&gt;首先，就像std的作用是使人们可以方便的处理各种类型的数据一样，itorator的作用是遍历container里的所有数据，而无需指定数据类型（type）。所以不同的container的itorator所指向的对象是不一样的。&lt;/p&gt;
+
+&lt;blockquote&gt;&lt;p&gt;有的是object，有的是pointer。【C++ Primer Plus，P995】&lt;/p&gt;&lt;/blockquote&gt;
+
+&lt;p&gt;*疑惑：对于itorator作为pointer我能理解，但是作为object的形式我还不明白。&lt;/p&gt;
+
+&lt;p&gt;通过debug的时候查看itor得知，在List中，itor是一个pointer, 指向一个包含prevLink, nextLink, 和value的Node。在list.erase(itor)之后，这个Node失去了作为itor的功能。（至于变成了什么，还不懂。但是通过在watch里的观察，它此时的值与list.end()一致。）而list.erase(itor)本身所return的，是下一个element的地址。&lt;/p&gt;
+
+&lt;p&gt;所以有：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;std::list&amp;lt;int&amp;gt; intList;
+for (int i = 0; i &amp;lt; 10; ++i)
+{
+    intList.push_back(i);
+}
+
+for (std::list&amp;lt;int&amp;gt;::iterator i = intList.begin(); i != intList.end(); ++i)
+{
+    if (*itor % 2 == 1)
+    {
+        intList.erase(itor++);
+        // or itor = intList.erase(itor);
+    }
+    else
+        ++itor;
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;而其中的&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;intList.erase(itor++);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;正是利用了 int++ 首先copy一份（valuation），返回copy之后再对目标加1的特性(伪代码):&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;copyObj = *this;
+*this += 1;
+return copyObj;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;&lt;strong&gt;（所以，普遍认为在c++中，一般情况下使用++int比较有效率。）&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;但是需要注意的是，上面的代码还应该改为while loop, 不然每次会跳过一个item。 而且使用itor = intList.erase(itor) 更为安全。因为如果把List改为Vector的话，intList.erase(itor++) 会导致 &quot;iterator is incompatible&quot; 的错误:&lt;/p&gt;
+
+&lt;p&gt;但是在对vector的测试中，即使是intList.erase(itor++)也会出错(&quot;iterator is incompatible&quot;)：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;std::list&amp;lt;int&amp;gt; intList;
+std::vector&amp;lt;int&amp;gt; intVector;
+for (int i = 0; i &amp;lt; 10; ++i)
+{
+    intVector.push_back(i);
+}
+
+std::Vector&amp;lt;int&amp;gt;::iterator itor = intVector.begin();
+while (itor != intVector.end())
+{
+    if (*itor % 2 == 1)
+    {
+        itor = intVector.erase(itor);
+        intVector.erase(itor++);
+    }
+    else
+        ++itor;
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;至于出现&quot;iterator is incompatible&quot;错误的原因，下面有人提到是因为：
+Vector使用array来组织信息，在其中一个item被移除的时候，它会将后续的items向左移动，填补空间。
+但是我不明白的是，根据debug观察，当itor=1时，&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;if (*itor % 2 == 1)
+    {
+        intVector.erase(itor++);
+    }
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;移除1之后，itor的值的确变成了3（因为2向左移，同时itor++，所以跳过了2）。那么情况因该与for loop中类似，每次循环跳过一个item才对，为什么会出错呢？&lt;/p&gt;
+
+&lt;h4&gt;debug中对于内存地址的观察&lt;/h4&gt;
+
+&lt;p&gt;itor==1的时候，[ptr]:0x004aab74{1}。&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/blog/cpp_iterator_001.jpg&quot; alt=&quot;Alt text&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;执行intVector.erase(itor++)之后，[ptr]0x004aab78{3}。此时，[ptr]:0x004aab74应该成为了2。&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/blog/cpp_iterator_002.jpg&quot; alt=&quot;Alt text&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;注意上图中，_Myproxy变为nullprt。&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;此时，如果是使用whie loop。返回while loop 的比较阶段，进行比较时，出错
+&lt;img src=&quot;/images/blog/cpp_iterator_003.jpg&quot; alt=&quot;Alt text&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;如果是使用for loop，返回for loop的迭代阶段，进行++itor时，出错
+&lt;img src=&quot;/images/blog/cpp_iterator_004.jpg&quot; alt=&quot;Alt text&quot; /&gt;&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;疑惑: Vector中使用 intList.erase(itor++) 出现&quot;iterator is incompatible&quot;错误的原因可能是因为itor指向的结构发生了变化？&lt;/li&gt;
+&lt;/ul&gt;
+
+
+&lt;h2&gt;对于“如何删除升级后的技能”的解答&lt;/h2&gt;
+
+&lt;p&gt;对于这个如何在update之后马上从技能列表中删除此技能的问题，&lt;a href=&quot;http://stackoverflow.com/users/65004/mike&quot; title=&quot;Mike&quot;&gt;Mike&lt;/a&gt;给出的解答是：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;// Note: Using the pre-increment operator is preferred     for iterators because
+//       there can be a performance gain.
+//
+// Note: As long as you are iterating from beginning to     end, without inserting
+//       along the way you can safely save end once;     otherwise get it at the
+//       top of each loop.
+
+std::list&amp;lt; item * &amp;gt;::iterator iter = items.begin();
+std::list&amp;lt; item * &amp;gt;::iterator end  = items.end();
+
+while (iter != items.end())
+{
+    item * pItem = *iter;
+
+    if (pItem-&amp;gt;update() == true)
+    {
+        other_code_involving(pItem);
+        ++iter;
+    }
+    else
+    {
+        // BTW, who is deleting pItem, a.k.a. (*iter)?
+        iter = items.erase(iter);
+    }
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;但是解答者还给出了更好的解决方案，既是本文要记录的有关std的知识点：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;// This implementation of update executes     other_code_involving(Item *) if
+// this instance needs updating.
+//
+// This method returns true if this still needs future     updates.
+//
+bool Item::update(void)
+{
+    if (m_needsUpdates == true)
+    {
+        m_needsUpdates = other_code_involving(this);
+    }
+
+    return (m_needsUpdates);
+}
+
+// This call does everything the previous loop did!!!     (Including the fact
+// that it isn&#39;t deleting the items that are erased!)
+items.remove_if(std::not1(std::mem_fun(&amp;amp;Item::update)));
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2&gt;知识点&lt;/h2&gt;
+
+&lt;p&gt;通过查资料，大概了解了这里用到的几个函数，试着写下来自己的简单理解：&lt;/p&gt;
+
+&lt;h4&gt;std::mem_fun&lt;/h4&gt;
+
+&lt;p&gt;返回一个函数体(function object)里面含有的成员函数(member function)，然后返回结果。在此，如果已经update过了，返回false。&lt;/p&gt;
+
+&lt;h4&gt;std::transform&lt;/h4&gt;
+
+&lt;p&gt;std::mem_fun的实现涉及std::transform。
+它的作用是遍历参数中的container里的element，将此作为参数中的函数体的参数，依次执行，得到并返回结果。
+&lt;a href=&quot;http://www.cplusplus.com/reference/algorithm/transform/&quot;&gt;例子&lt;/a&gt;：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;int op_increase (int i) { return ++i; }
+
+// example of std::transform
+void std_transform()
+{
+    std::vector&amp;lt;int&amp;gt; foo;
+    std::vector&amp;lt;int&amp;gt; bar;
+
+    // set some values:
+    for (int i=1; i&amp;lt;6; i++)
+        foo.push_back (i*10);                         // foo: 10 20 30 40 50
+
+    bar.resize(foo.size());                         // allocate space
+
+    std::transform (foo.begin(), foo.end(), bar.begin(), op_increase);
+    // bar: 11 21 31 41 51
+
+    // std::plus adds together its two arguments:
+    std::transform (foo.begin(), foo.end(), bar.begin(), foo.begin(), std::plus&amp;lt;int&amp;gt;());
+    // foo: 21 41 61 81 101
+
+    std::cout &amp;lt;&amp;lt; &quot;foo contains:&quot;;
+    for (std::vector&amp;lt;int&amp;gt;::iterator it=foo.begin(); it!=foo.end(); ++it)
+        std::cout &amp;lt;&amp;lt; &#39; &#39; &amp;lt;&amp;lt; *it;
+    std::cout &amp;lt;&amp;lt; &#39;\n&#39;;
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h4&gt;std::not1&lt;/h4&gt;
+
+&lt;p&gt;返回相反boolean值&lt;/p&gt;
+
+&lt;h4&gt;std::remove_if&lt;/h4&gt;
+
+&lt;p&gt;移除符合条件的elements。
+*&lt;a href=&quot;http://www.cplusplus.com/reference/algorithm/remove_if/&quot; title=&quot;std::remove_if在c++11里的实现&quot;&gt;std::remove_if在c++11里的实现&lt;/a&gt;：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;enter code hertemplate &amp;lt;class ForwardIterator, class UnaryPredicate&amp;gt;
+ForwardIterator remove_if (ForwardIterator first, ForwardIterator last, UnaryPredicate pred)
+{
+  ForwardIterator result = first;
+  while (first!=last) {
+    if (!pred(*first)) {
+      *result = std::move(*first);
+      ++result;
+    }
+    ++first;
+  }
+  return result;
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h4&gt;std::move&lt;/h4&gt;
+
+&lt;p&gt;获取参数的rvalue reference，然后将其转为xvalue。&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;std::string str = &quot;Hello&quot;;
+std::vector&amp;lt;std::string&amp;gt; v;
+v.push_back(std::move(str));
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;将string转移到Vector v里面而避免copy的过程。此时str=&quot;&quot;。
+但有趣的是，如果继续&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;// string move assignment operator is often implemented as swap,
+// in this case, the moved-from object is NOT empty
+std::string str2 = &quot;Good-bye&quot;;
+std::cout &amp;lt;&amp;lt; &quot;Before move from str2, str2 = &#39;&quot; &amp;lt;&amp;lt; str2 &amp;lt;&amp;lt; &quot;&#39;\n&quot;;
+v[0] = std::move(str2);
+std::cout &amp;lt;&amp;lt; &quot;After move from str2, str2 = &#39;&quot; &amp;lt;&amp;lt; str2 &amp;lt;&amp;lt; &quot;&#39;\n&quot;;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;output:
+Before move from str2, str2 = &#39;Good-bye&#39;
+After move from str2, str2 = &#39;Hello&#39;&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&quot;http://en.cppreference.com/w/cpp/utility/move&quot;&gt;std::move例子的完整代码&lt;/a&gt;&lt;/p&gt;
+</content>
+   </entry>
+   
+   <entry>
+     <title>First Entry</title>
+     <link href="http://beiyuu.com/first-entry"/>
+     <updated>2014-05-25T00:00:00+10:00</updated>
+     <id>http://beiyuu.com/first-entry</id>
+     <content type="html">&lt;h2&gt;My blog on GitHub&lt;/h2&gt;
+
+&lt;p&gt;Generally, this is a test entry.&lt;/p&gt;
+
+&lt;h2&gt;Test code hightlight&lt;/h2&gt;
+
+&lt;pre class=&quot;prettyprint&quot;&gt;
+$(&#39;#disqus_container .comment&#39;).on(&#39;click&#39;,function(){
+        $(this).html(&#39;加载中...&#39;);
+        var disqus_shortname = &#39;beiyuu&#39;;
+        var that = this;
+        BYB.includeScript(&#39;http://&#39; + disqus_shortname + &#39;.disqus.com/embed.js&#39;,function(){$(that).remove()}); //这是一个加载js的函数
+});
+&lt;/pre&gt;
+
+
+&lt;p&gt;&lt;/p&gt;
+
+&lt;pre class=&quot;prettyprint&quot;&gt;
+// sort list from less to greater
+// a_sortList: the list waiting to be sorted
+// a_max: numbers of element in the list
+int&amp; bubbleSort(int a_sortList[], int a_max)
+{
+    int temp = 0;
+
+    // i is the counter, start from a_max - 1, minus by 1 every loop
+    for (int i = 0; i &lt; a_max - 1; ++i)
+    {
+        // compare every adjacent pair, move the greater one to the right side
+        for (int j = 0; j &lt; a_max - 1 - i; ++j)
+        {
+            if (a_sortList[j] &gt; a_sortList[j + 1])
+            {
+                temp = a_sortList[j];
+                a_sortList[j] = a_sortList[j + 1];
+                a_sortList[j + 1] = temp;
+            }
+        }
+    }
+    return *a_sortList;
+}
+&lt;/pre&gt;
+
+
+&lt;p&gt;&lt;/p&gt;
+
+&lt;h2&gt;Insert image&lt;/h2&gt;
+
+&lt;p&gt;My lovely Baybay.
+&lt;img src=&quot;/images/test/avatar.jpg&quot; alt=&quot;test&quot; /&gt;
+&lt;img src=&quot;/images/test/baybay.jpg&quot; alt=&quot;test&quot; /&gt;&lt;/p&gt;
+
+&lt;h2&gt;Insert video from youtube&lt;/h2&gt;
+
+&lt;!--
+&lt;iframe width=&quot;560&quot; height=&quot;315&quot; src=&quot;//www.youtube.com/embed/x4prTw5kE40&quot; frameborder=&quot;0&quot; allowfullscreen&gt;&lt;/iframe&gt;
+--&gt;
+
+
+&lt;div style=&quot;text-align:center&quot;&gt;
+&lt;embed src=&quot;//www.youtube.com/embed/x4prTw5kE40&quot; frameborder=&quot;0&quot; allowfullscreen width=&quot;560&quot; height=&quot;315&quot;&gt;&lt;/embed&gt;
+&lt;/div&gt;
+
+
+&lt;h2&gt;Insert video from youku&lt;/h2&gt;
+
+&lt;div style=&quot;text-align:center&quot;&gt;
+&lt;embed src=&quot;http://player.youku.com/player.php/sid/XNTUxNDY1NDY4/v.swf&quot; allowFullScreen=&quot;true&quot; quality=&quot;high&quot; width=&quot;480&quot; height=&quot;400&quot; 
+align=&quot;middle&quot; allowScriptAccess=&quot;always&quot; type=&quot;application/x-shockwave-flash&quot;&gt;&lt;/embed&gt;
+&lt;/div&gt;
+
+</content>
+   </entry>
+   
+   <entry>
+     <title>About Me</title>
+     <link href="http://beiyuu.com/about-me"/>
+     <updated>2014-05-25T00:00:00+10:00</updated>
+     <id>http://beiyuu.com/about-me</id>
+     <content type="html">&lt;h2&gt;Who I am&lt;/h2&gt;
+
+&lt;p&gt;My name is Zheng(Derek)Wang, a student of Academy of Interactive Entertainment(AIE,Sydney).
+I am on my 2nd year of game development of programing now. My career goal is to be a game desinger, but
+I would like to start from a game dev programmer.&lt;/p&gt;
+
+&lt;h2&gt;What this blog does&lt;/h2&gt;
+
+&lt;p&gt;I have a &lt;a href=&quot;http://www.birdinforest.com/blog/&quot; title=&quot;blog&quot;&gt;blog&lt;/a&gt; built by Wordpress. It is a fantastic exploring to figure out how to set up Virtual Hosing, Apache,
+PHP Admin, MySQL, and Wordpress tamplate. Even now I can recall that how exciting to build my own tiny corner in the internet.
+Yes, that is good old days.
+I did not post a lot on that blog, which is sad. The last entry is posted at April 10, 2010. Looks like it is a waste of
+money to keep online, but I just can not abandon my good memory.
+Oh, after all of those crap, I should state what &quot;this&quot; blog for. I will post all of my thinking and works relating to my
+study here, including, but not limited to(I fell power from this phrase!) programming, game design, and every thing I learned.
+Generally, it is a journal of my study and job.(If I could get a job, fingers crossed.)&lt;/p&gt;
+
+&lt;h2&gt;Credit&lt;/h2&gt;
+
+&lt;p&gt;The template is designed and coded by &lt;a href=&quot;http://beiyuu.com/&quot; title=&quot;BeiYuu&quot;&gt;BeiYuu&lt;/a&gt;. All credit belongs to him.&lt;/p&gt;
+
+&lt;hr /&gt;
+
+&lt;h2&gt;我是谁&lt;/h2&gt;
+
+&lt;p&gt;我是一名目前正在Academy of Interactive Entertainment(AIE,Sydney)学习游戏开发编程的学生。在开始目前的学业之前，我曾经有过短暂的职业
+经历，但是与游戏开发无关。目前我的职业目标是成为一名游戏设计师。但是我希望我能从一名游戏程序员做起。&lt;/p&gt;
+
+&lt;h2&gt;为什么有这个博客&lt;/h2&gt;
+
+&lt;p&gt;我希望通过这个博客记录自己在学习和工作中的感想，并且展示我的所学所作。我还有另外一个利用WordPress和虚拟服务器建立的&lt;a href=&quot;http://www.birdinforest.com/blog/&quot; title=&quot;博客&quot;&gt;博客&lt;/a&gt;。但是
+当我知道github page的便利之后，很像尝试一下利用vim和markdown写博客的便利。于是有了这个新的博客。&lt;/p&gt;
+
+&lt;h2&gt;Credit&lt;/h2&gt;
+
+&lt;p&gt;这个模板的所有设计和代码出自&lt;a href=&quot;http://beiyuu.com/&quot; title=&quot;BeiYuu&quot;&gt;BeiYuu&lt;/a&gt;。按照他在&lt;a href=&quot;http://beiyuu.com/github-pages/&quot;&gt;&quot;使用Github Pages建独立博客&quot;&lt;/a&gt;中的许可，我直接fork了他在github中的项目，然后改了很少的
+一点无关功能的代码。谢谢BeiYuu的慷慨。&lt;/p&gt;
+</content>
+   </entry>
+   
+   <entry>
+     <title>Ranger of the Abyss</title>
+     <link href="http://beiyuu.com/ranger-of-the-abyss"/>
+     <updated>2010-04-10T00:00:00+10:00</updated>
+     <id>http://beiyuu.com/ranger-of-the-abyss</id>
+     <content type="html">&lt;p&gt;April 10, 2010 at 5:20 pm&lt;/p&gt;
+
+&lt;p&gt;The kingdom of Britainnia and Ter-Mur had made an agreement relating to built a outpost in Abyss in order to keep close watch over the chaos in that dungeon.&lt;/p&gt;
+
+&lt;p&gt;That is why they need a number of candidates to help them. The finnal reward might be a unique hourse in Abyss.&lt;/p&gt;
+
+&lt;p&gt;This is a quest chain. Firstly, head to Britian Castle and talk to &lt;a href=&quot;http://www.uoguide.com/Dexter_the_Royal_Mage&quot; title=&quot;Dexter the Royal Mage&quot;&gt;Dexter the Royal Mage&lt;/a&gt;.
+&lt;img src=&quot;/images/blog/Ranger_of_the_Abyss_01.jpg&quot; alt=&quot;image&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;So, you are one of the candidates for the position Ranger of the Abyss? Very good, I will help you prepare.&lt;/p&gt;
+
+&lt;p&gt;For &lt;a href=&quot;http://www.uoguide.com/Dawn&quot; title=&quot;Dawn&#39;s&quot;&gt;Dawn&#39;s&lt;/a&gt; campaign you will need &lt;a href=&quot;http://www.uoguide.com/Lamp_of_Spirituality&quot; title=&quot;a lamp of spirituality&quot;&gt;a lamp of spirituality&lt;/a&gt;. A lamp of spirituality detects extreme levels of good and evil. In this case we are using it to detect evil… and err, good.&lt;/p&gt;
+
+&lt;p&gt;Anyway, it doesn’t detect the garden variety evil that one might normally find in Britannia or it would just be changing color all the time and not be very useful. It detects infernal evil, as in arch-demon levels of evil. You are going to be using its power to detect the influence of the &lt;a href=&quot;http://www.uoguide.com/Slasher_of_Veils&quot; title=&quot;Slasher of Veils&quot;&gt;Slasher of Veils&lt;/a&gt;! When you are in the &lt;a href=&quot;http://www.uoguide.com/Stygian_Abyss_Dungeon&quot; title=&quot;Stygian Abyss&quot;&gt;Stygian Abyss&lt;/a&gt;, you will see that its light turns from white to purple, this is due to vice corruption.&lt;/p&gt;
+
+&lt;p&gt;I will make one of these lamps for you but you will need to gather the ingredients. The ingredients are both common and rare, but I assume that you are prepared for adventure? The ingredients are… are you writing this down? The ingredients are:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;a &lt;a href=&quot;http://www.uoguide.com/Lantern&quot; title=&quot;lantern&quot;&gt;lantern&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;a &lt;a href=&quot;http://www.uoguide.com/A_Seed_of_the_Silver_Sapling&quot; title=&quot;silver sapling seed&quot;&gt;silver sapling seed&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;a &lt;a href=&quot;http://www.uoguide.com/A_Rare_Serpent_Egg&quot; title=&quot;rare serpent egg&quot;&gt;rare serpent egg&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;a &lt;a href=&quot;http://www.uoguide.com/Dark_Wisp_Orb&quot; title=&quot;dark wisp orb&quot;&gt;dark wisp orb&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+
+&lt;blockquote&gt;&lt;p&gt;I hear the rare serpent egg can be found near the lair of Medusa in the Abyss… very dangerous, better you than me… err, no offense intended. The wisp orb is an item that is usually protected by dark wisps. I understand that there are some in Ilshenar, if you see some wisps look around for a treasure chest, a wisp orb will be inside… it’s weird, I know. Hmm… I wonder how they open the chest? Anyway, I’m pretty sure you are going to have to kill the wisps to break the spell on the chest.&lt;/p&gt;
+
+&lt;p&gt;Are you prepared to take on this dangerous quest?&lt;/p&gt;
+
+&lt;p&gt;—-&lt;a href=&quot;http://www.uoguide.com/Dexter_the_Royal_Mage&quot; title=&quot;Dexter the Royal Mage&quot;&gt;Dexter the Royal Mage&lt;/a&gt;&lt;/p&gt;&lt;/blockquote&gt;
+
+&lt;p&gt;Now we should search for those items.&lt;/p&gt;
+
+&lt;p&gt;a lanten can be purchased from any Provisioner.&lt;/p&gt;
+
+&lt;p&gt;Silver Sapling Seed can be found in Abyss in a lovely garden.
+&lt;img src=&quot;/images/blog/Ranger_of_the_Abyss_02.jpg&quot; alt=&quot;image&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Searching for a Rare Serpent Egg is a bit dangerous. You must get into a mass of snake. If you are lucky enough, a rare serpent egg might be found in a serpent nests near by Medusas’ Lair .
+&lt;img src=&quot;/images/blog/Ranger_of_the_Abyss_03.jpg&quot; alt=&quot;image&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;A dark wisp orb can be obtained in a chest named “Dark Wisp Treasure” in 2ed floor of wisp dungeon. Before you get it, you have to slay two Dark Wisp Guardian.
+&lt;img src=&quot;/images/blog/Ranger_of_the_Abyss_04.jpg&quot; alt=&quot;image&quot; /&gt;
+&lt;img src=&quot;/images/blog/Ranger_of_the_Abyss_05.jpg&quot; alt=&quot;image&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Now, looks like we have collected all of 4 items. Head to the royal mage, you will get the lamp of spirituality which looks like this –
+&lt;img src=&quot;/images/blog/Ranger_of_the_Abyss_06.jpg&quot; alt=&quot;image&quot; /&gt;
+&lt;img src=&quot;/images/blog/Ranger_of_the_Abyss_07.jpg&quot; alt=&quot;image&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;It is time to talk to Sir Geoffrey the Captain of theRoyal Guard inside the Britain Castle, however do not forget to carry the lamp.&lt;/p&gt;
+
+&lt;blockquote&gt;&lt;p&gt;Hail citizen! I see you have a lamp of spirituality. I now have an important mission for you on behalf of our queen, Dawn.&lt;/p&gt;
+
+&lt;p&gt;It is her majesty’s desire to have an outpost within the Stygian Abyss; however, it is currently impossible due to the strong vice influence of the Slasher of Veils. Unfortunately, killing him is not the simple answer and we must fight his influence by other means. I would ask you to aid in this campaign; your service will place you in the queen’s favor and will be rewarded.&lt;/p&gt;
+
+&lt;p&gt;Now, this is news to me but I am told there are locations in Sosaria called virtue nodes; it seems these locations radiate virtue. Dexter says that there are more of them in Trammel than Felucca, but they are fairly common and they clean the vice from our world. He believes that we will be able to use lamps of spirituality to discover virtue nodes in the Stygian Abyss and then use them to push back the influence of the Slasher of Veils enough to build an outpost.&lt;/p&gt;
+
+&lt;p&gt;Use your lantern of spirituality to seek out these virtue nodes, your lamp will glow green when you find one. Bury this virtue crystal at the spot and it will grow and amplify the node, which will cause additional nodes to be revealed (it will take one real day for a new node to be revealed). If we can discover and strengthen enough nodes, they will create a location that pure enough that we can build an outpost…. Will you take this quest?&lt;/p&gt;
+
+&lt;p&gt;-&lt;a href=&quot;http://www.uoguide.com/Sir_Geoffrey_the_Captain_of_the_Royal_Guard&quot; title=&quot;Sir Geoffrey the Captain of the Royal Guard&quot;&gt;Sir Geoffrey the Captain of the Royal Guard&lt;/a&gt;&lt;/p&gt;&lt;/blockquote&gt;
+
+&lt;p&gt;As the 2ed part of quest chain, we should bury the &lt;a href=&quot;http://www.uoguide.com/Virtue_Crystal&quot; title=&quot;Virtue Crystal&quot;&gt;Virtue Crystal&lt;/a&gt; which is just got from Sir Geoffrey in the specified location in Abyss.
+&lt;img src=&quot;/images/blog/Ranger_of_the_Abyss_08.jpg&quot; alt=&quot;image&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Enter the dungeon Abyss. We can see that the lamp glow purple light. What we should do is find a spot at where the lamp glow green light instand of purple light then bury the Virtue Crystal at there.
+&lt;img src=&quot;/images/blog/Ranger_of_the_Abyss_09.jpg&quot; alt=&quot;image&quot; /&gt;
+&lt;img src=&quot;/images/blog/Ranger_of_the_Abyss_10.jpg&quot; alt=&quot;image&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;After we have done that, quest completed! Cheers!
+&lt;img src=&quot;/images/blog/Ranger_of_the_Abyss_11.jpg&quot; alt=&quot;image&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Go back to report to Sir Geoffrey, we can get a reward in the wooden chest behind him.
+&lt;img src=&quot;/images/blog/Ranger_of_the_Abyss_12.jpg&quot; alt=&quot;image&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Rewards might be —&lt;/strong&gt;&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;A random treasure from &lt;a href=&quot;http://www.uoguide.com/Sir_Geoffrey_the_Captain_of_the_Royal_Guard&quot; title=&quot;Sir Geoffrey&#39;s&quot;&gt;Sir Geoffrey&#39;s&lt;/a&gt; trunk.&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;http://www.uoguide.com/Relic_Fragment&quot; title=&quot;Relic Fragment&quot;&gt;Relic Fragment&lt;/a&gt; &lt;img src=&quot;http://www.uoguide.com/File:Relic_fragment.png&quot; alt=&quot;image&quot; /&gt; (Uncommon)&lt;/li&gt;
+&lt;/ul&gt;
+
+
+&lt;p&gt;&lt;strong&gt;The satchel contains one of the following:&lt;/strong&gt;&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;A random magic item (Common)&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;http://www.uoguide.com/Frostguard&quot; title=&quot;Frostguard&quot;&gt;Frostguard&lt;/a&gt; (Rare)&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;http://www.uoguide.com/Ranger%27s_Cloak_of_Augmentation&quot; title=&quot;Ranger’s Cloak of Augmentation&quot;&gt;Ranger’s Cloak of Augmentation&lt;/a&gt; (Rare)&lt;/li&gt;
+&lt;/ul&gt;
+
+</content>
+   </entry>
+   
+   <entry>
+     <title>The Queen from TerMur</title>
+     <link href="http://beiyuu.com/The-Queen-from-TerMur"/>
+     <updated>2009-09-23T00:00:00+10:00</updated>
+     <id>http://beiyuu.com/The-Queen-from-TerMur</id>
+     <content type="html">&lt;p&gt;September 23, 2009 at 4:29 am&lt;/p&gt;
+
+&lt;p&gt;Following the calling of Dawn, the queen of Britannia, citizens gethered at the Castle Britannia.&lt;/p&gt;
+
+&lt;p&gt;Queen Dawn announced that the Queen of TerMur will arrive shortly. She asked citizens to wait the coming Queen at city Britain moongate and escort her get to the Castle safely.
+&lt;img src=&quot;/images/blog/the-queen-from-termur_01.jpg&quot; alt=&quot;image&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;This lady is ….&lt;/p&gt;
+
+&lt;p&gt;She is the Queen Zhah. Looks so odd.
+&lt;img src=&quot;/images/blog/the-queen-from-termur_02.jpg&quot; alt=&quot;image&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Crowd were leading the Queen go to the Castle Britannia.
+&lt;img src=&quot;/images/blog/the-queen-from-termur_03.jpg&quot; alt=&quot;image&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Two ladies’ conversation. Queen Zhah said she would like finish the connection of moongates between Britannia and TerMur.
+&lt;img src=&quot;/images/blog/the-queen-from-termur_04.jpg&quot; alt=&quot;image&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;We went back to the moongate nearby city Britan where Queen Zhah will finish the last work for moongate connection.
+&lt;img src=&quot;/images/blog/the-queen-from-termur_05.jpg&quot; alt=&quot;image&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Following the spell casted by Queen Zhah, the moongate changed color times, finally returned to blue.
+&lt;img src=&quot;/images/blog/the-queen-from-termur_06.jpg&quot; alt=&quot;image&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;After the last work was finished, Queen Zhah went back to her reaml.&lt;/p&gt;
+
+&lt;p&gt;As Queen Dawn announced, an alliance has been built between two racese.&lt;/p&gt;
+
+&lt;p&gt;Someone killed a pig on the way Queen Zhah walked though, another man shouted “Clear road, vip coming though!.”&lt;/p&gt;
+
+&lt;p&gt;That is why this guy grumbled at the death of that pool pig.
+&lt;img src=&quot;/images/blog/the-queen-from-termur_07.jpg&quot; alt=&quot;image&quot; /&gt;
+&lt;img src=&quot;/images/blog/the-queen-from-termur_08.jpg&quot; alt=&quot;image&quot; /&gt;&lt;/p&gt;
+</content>
+   </entry>
+   
+   <entry>
+     <title>我们的小叮噹</title>
+     <link href="http://beiyuu.com/im-a-google-fan"/>
+     <updated>2009-09-13T00:00:00+10:00</updated>
+     <id>http://beiyuu.com/im-a-google-fan</id>
+     <content type="html">&lt;p&gt;September 13, 2009 at 1:12 am&lt;/p&gt;
+
+&lt;p&gt;2112年九月三日，哆唻A梦出生于日本东京的一家机器人工厂。这是一个猫型的保姆机器人，负责帮助主人照看小孩子。可惜，哆唻A梦在机器人学校里面成绩很差，前途堪忧。好在他最后还是被一个不太有钱的家庭买走了。&lt;/p&gt;
+
+&lt;p&gt;这个家庭姓野比，哆唻A梦负责照顾他们的儿子，野比修。慢慢长大的野比修看着自己少的可怜的零用钱，免不了抱怨自己家族的祖先不争气。于是，他决定将哆唻A梦送回到一百多年的过去，让他帮助一下那位不中用的祖先，野比大雄。&lt;/p&gt;
+
+&lt;p&gt;然后，小叮当与大雄的故事开始了。
+&lt;img src=&quot;/images/blog/Doraemon.jpg&quot; alt=&quot;image&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;百宝袋，竹蜻蜓，任意门，还有蓝色的梦。&lt;/p&gt;
+
+&lt;p&gt;小叮当从来没有改变过野比大雄的未来，但是他真的改变了我们的生活。&lt;/p&gt;
+
+&lt;p&gt;小叮当的道具可以用来征服世界，也可以用来成为百万富翁。但是在纯洁无暇的世界里，他们甚至没有一丁点这样的想法。大雄的心里，只有令人痛苦的作业，经常欺负他的小夫与胖虎，可爱聪明的小静。那时的我们，何曾不是这样纯净呢。&lt;/p&gt;
+
+&lt;p&gt;我们都想象过，如果自己也有一个小叮当在身边，会是怎么样。百宝袋里面装满了稀奇古怪的道具，可惜大多数是功能不全或者是故障不断的免费试用品。戴上竹 蜻蜓就可以在天空翱翔，可惜常常会突然电池没电。打开任意门就可以到世界的任意一个地方，但也许一开门就碰到一只凶恶的非洲狮子。小叮当的道具可以帮助大 雄度过一个个令人头痛的难关，但也时常带来一堆堆令人忍俊不禁的小麻烦。&lt;/p&gt;
+
+&lt;p&gt;我们都知道，拥有自己的小叮当的可能性，远远远远地小于中10亿欧元的六合彩。&lt;/p&gt;
+
+&lt;p&gt;正如我们无法永远偎依在妈妈的身边。&lt;/p&gt;
+
+&lt;p&gt;所以，有人说，梦想成为大雄，只是孩子们的特权。&lt;/p&gt;
+
+&lt;p&gt;现在的我们，应该成为别人的小叮当。帮助身边的朋友，亲人，度过一个个的困难，或者，也许也给他们带来一点点小小的，有趣的麻烦。重要的是，我们也应该成为影响他人生活的一部分，不是么。&lt;/p&gt;
+
+&lt;p&gt;小叮当，在你出生前一百零二年的这个九月里，提前祝你生日快乐。&lt;/p&gt;
+
+&lt;p&gt;谢谢。&lt;/p&gt;
+</content>
+   </entry>
+   
+   <entry>
+     <title>Bell of Courage (Shadowlord denfeated, Oceania）</title>
+     <link href="http://beiyuu.com/bell-of-courage"/>
+     <updated>2009-09-07T00:00:00+10:00</updated>
+     <id>http://beiyuu.com/bell-of-courage</id>
+     <content type="html">&lt;p&gt;September 7, 2009 at 7:11 pm&lt;/p&gt;
+
+&lt;p&gt;Although our allies, Platinum Dragons lost the battle yestoday, we finally discovered the portal to the lair of shadowlords with their intent of rebuilding a corrupted version of the Gem of Immortality, over witch they would rule. Tonight, we have chance to find and destroy the shadowlords and recover that corrupted gem.
+&lt;img src=&quot;/images/blog/bell_of_courage_shadowlords_defended_01.jpg&quot; alt=&quot;image&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Lady Dawn opened a moongate to daemon temple where, a portal was found at the top of the large staircase. All of us rushed through the portal, then we found ourseves were surrounded  by numerous manifestation of the shadowlords, blocking the way to the true ones.  We had to fight to gain ground.
+&lt;img src=&quot;/images/blog/bell_of_courage_shadowlords_defended_02.jpg&quot; alt=&quot;image&quot; /&gt;
+&lt;img src=&quot;/images/blog/bell_of_courage_shadowlords_defended_03.jpg&quot; alt=&quot;image&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Finally, all was still. The shadowlords were defeated. Lady Dawn removed the gem from pillar and gently slipped it into her pack.
+&lt;img src=&quot;/images/blog/bell_of_courage_shadowlords_defended_04.jpg&quot; alt=&quot;image&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Everyone regrouped back to the hall of britain’s castle. Lady dawn made a speech, announced that Casca is a  accessory of shadowlords, he will be arrested in the future days.
+&lt;img src=&quot;/images/blog/bell_of_courage_shadowlords_defended_05.jpg&quot; alt=&quot;image&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;At that time, we finally finished that joumey. I went to  the location of the monument which is in memory of Clainin, who was believed got assassinated by Casca’s accessories.
+&lt;img src=&quot;/images/blog/bell_of_courage_shadowlords_defended_06.jpg&quot; alt=&quot;image&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;After that excited event, tow EMs standed in Luna bank waiting for feedback from crowed. That communiation was ended by pie throwing.
+&lt;img src=&quot;/images/blog/bell_of_courage_shadowlords_defended_07.jpg&quot; alt=&quot;image&quot; /&gt;&lt;/p&gt;
+</content>
+   </entry>
+   
+ 
+</feed>

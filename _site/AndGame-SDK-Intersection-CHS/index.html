@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <!--
+    * Author:         Template credit belongs to BeiYuu
+    -->
+    <meta charset="utf-8" />
+    <title>Unity3D项目接入移动基地（和游戏）SDK | birdinforest</title>
+    <meta name="author" content="DerekW" />
+    <meta name="renderer" content="webkit">
+    <meta name="description" content="DerekW's Blog" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0">
+    <link rel="stylesheet" href="/css/default.css" type="text/css" />
+    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" />
+    <link rel="alternate" type="application/atom+xml" title="Recent Entries" href="/atom.xml" />
+    <script src="/js/jquery-1.7.1.min.js" type="text/javascript"></script>
+</head>
+<body>
+
+    <div class="home-menu">
+        <div class="home-icon-con">
+            <a class="home-menu-icon" href="/">DerekW</a>
+            <a class="home-follow" href="#" title="Contact Me">+</a>
+        </div>
+        <div class="home-contact">
+            <a href="http://weibo.com/ForrrestW" target="_blank" style="margin-left:-5px;"><img src="http://www.weibo.com/favicon.ico" alt="" width="25"/></a>
+            <a href="http://www.douban.com/people/1388208/" target="_blank" style="text-align:center;"><img src="http://www.douban.com/favicon.ico" alt="" width="22"/></a>
+			<!--
+            <a href="http://instagram.com/beiyuu/" target="_blank" style="text-align:right"><img src="http://d36xtkk24g8jdx.cloudfront.net/bluebar/00c6602/images/ico/favicon.ico" alt="" width="22"/></a>
+			-->
+        </div>
+    </div>
+
+    <link rel="stylesheet" href="/js/prettify/prettify.css" />
+<style type="text/css">
+    body { background:#e8e8e8; }
+    @media screen and (max-width: 750px){
+        body { background:#fff; }
+    }
+    @media screen and (max-width: 1020px){
+        body { background:#fff; }
+    }
+</style>
+
+<div id="content">
+    <div class="entry">
+        <h1 class="entry-title"><a href="/AndGame-SDK-Intersection-CHS" title="Unity3D项目接入移动基地（和游戏）SDK">Unity3D项目接入移动基地（和游戏）SDK</a></h1>
+        <p class="entry-date">2015-05-23</p>
+        <p>前段时间公司的游戏需要接入移动基地的SDK，虽然我对于安卓开发与SDK接入基本没什么经验，但是自告奋勇的接下了这个工作任务。没有想到，完成这个看起来简单的工作任务用了两个多星期。不过通过这次实践，我学到了一些安卓开发的基本知识，对于Unity3D与Java也有了更多的了解。</p>
+
+<h2>SDK接入流程</h2>
+
+<p><strong>适用版本V2.2.3</strong></p>
+
+<h3>拷贝文件</h3>
+
+<ul>
+<li>将SDK文件夹中的assets，libs，res，三个文件夹拷入Assets/Plugins/Android/。</li>
+<li>将SDK文件夹中Unity3D文件夹中的CMBillingForUnity.jar拷贝到Assets/Plugins/Android/libs.</li>
+<li>将SDK文件夹中Unity3D文件夹中的CMBillingAndroid.cs拷贝到/Plugins/Android/.</li>
+<li>将SDK文件夹中Unity3D文件夹中的CMBillingAndroid.cs拷贝到/Plugins/Android/.</li>
+</ul>
+
+
+<h3>编辑xml文件</h3>
+
+<p>编辑Plugins\Android\res\values\g_strings.xml，将游戏主入口(通常为com.unity3d,player.UnityPlayerActivity)填入: <string name="g_class_name">om.unity3d,player.UnityPlayerActivity</string></p>
+
+<h3>生成自定义Application所需要的jar文件</h3>
+
+<h4>eclipse</h4>
+
+<p>建一个新的project：New->Other...->Android->Android Application Project->Next。此时来到New Android Application对话框，填入的包名（Package Name）必须与Unity3D项目的Bundle Identifier一致，在这里已com.test.sdk为例。Application Name和Project Name可以随意。然后点击Next->Finish完成project的创建。<br/>
+在eclipse的Project Explore中，找到src/com.test.sdk/，点击右键->New->Class新建一个java文件,文件名必须是CmgameApplication。在文件中输入以下代码：</p>
+
+<pre><code class="java">    package com.sweatychair.gotoschool;
+
+    import android.app.Application;
+    public class CmgameApplication extends Application {
+        public void onCreate() {
+            System.loadLibrary("megjb");
+        }
+    }
+</code></pre>
+
+<p>保存。<br/>
+<em>这段代码扩展了App中的Application类, 在Application初始化的时候，载入library。</em><br/>
+删除其他在src/com.test.sdk中的java文件。(通常会有MainActivity.java，删除。)<br/>
+在项目名上点击右键->Export->Java->JAR file。在JAR File Specification对话框中，取消所有选项，勾选bin。在对话框下方，勾选三个选项：Exprot all output folders for checked projects, Export Java source files and resources, Export refactorings for checked projects. 选择输入路径。勾选Compress the contents of the JAR file，点击Finish完成。<br/>
+将jar拷贝到Assets\Plugins\Android\bin</p>
+
+<h4>Android Studio</h4>
+
+<p><a href="http://www.thegamecontriver.com/2015/04/android-plugin-unity-android-studio.html">参考文章</a></p>
+
+<h4>有可能在build时出现的错误</h4>
+
+<p>如果在Unity3D生成APK的时候出现错误：</p>
+
+<pre><code>Conversion to Dalvik format failed: Unable to execute dex: Multiple dex files define ...
+</code></pre>
+
+<p>查看console中的信息。通常是因为有了重复的Jar文件。删除重复的Jar。</p>
+
+<p>如果错误为：</p>
+
+<pre><code>Unable to convert classes into dex format.
+</code></pre>
+
+<p>console信息例子：</p>
+
+<pre><code>stderr[ UNEXPECTED TOP-LEVEL EXCEPTION: java.lang.IllegalArgumentException: a*lready added: Landroid/support/v4/hardware/display/DisplayManagerCompat;*
+</code></pre>
+
+<p>通常是有了重复的.class文件。在上面生成的jar文件中，可以删除掉不需要的.class文件。方法如下：<br/>
+解压缩CmgameApplication.jar, 在文件夹CmgameApplication/com/test/sdk/中，除去CmgameApplication之外，应该还有其他的.class文件。删除其他文件。<br/>
+在terminal中，将文件夹重新打包为Jar文件：</p>
+
+<pre><code class="bash">    jar cf CmgameApplication.jar ./com/
+</code></pre>
+
+<p>如果错误为：</p>
+
+<pre><code>Error building Player: CommandInvokationFailure: Unable to convert classes into dex format. See the Console for details.
+ C:\Program Files\Java\jdk1.7.0_55\bin\java.exe -Xmx1024M -Dcom.android.sdkmanager.toolsdir="C:/Program Files (x86)/Android/android-sdk\tools" -Dfile.encoding=UTF8 -jar "C:/Program Files (x86)/Unity/Editor/Data/BuildTargetTools/AndroidPlayer\sdktools.jar" -
+
+ stderr[
+
+ UNEXPECTED TOP-LEVEL EXCEPTION:
+ com.android.dx.cf.iface.ParseException: class name (com/companyname/unity/ad/R$attr) does not match path (bin/com/companyname/unity/ad/R$attr.class)
+     at com.android.dx.cf.direct.DirectClassFile.parse0(DirectClassFile.java:520)
+</code></pre>
+
+<p>有可能是jar包中有bin文件夹与com文件夹两个。或者是在不同的jar文件中有重复的.class文件。</p>
+
+<h3>编辑AndroidManifest.xml</h3>
+
+<p>􏰔􏰔将SDK\AndroidManifest.xml.activity.txt􏱭􏰛􏰌􏰟􏱮􏱯􏰠与SDK\AndroidManifest.xml.permision.txt内容拷入AndroidManifest.xml􏱭。注意不要有重复内容。<br/>
+删除原来的Activity中的入口定义：</p>
+
+<pre><code class="xml">    &lt;intent-filter&gt;
+    &lt;action android:name="android.intent.action.MAIN" /&gt;
+    &lt;category android:name="android.intent.category.LAUNCHER" /&gt;
+    &lt;/intent-filter&gt;
+</code></pre>
+
+<h3>完成</h3>
+
+<p>有关SDK功能的实现，参考SDK中的CmBillingAndroidDemo.cs更改代码。</p>
+
+<h3>可能的错误</h3>
+
+<ul>
+<li>移动基地的logo显示正常，进入游戏时闪退。可能是游戏的入口没有正确设置。确认游戏主入口在Plugins\Android\res\values\g_strings.xml中正确设置。并且确认AndroidManifest.xml里面设置了游戏入口的Activity.</li>
+<li>游戏一打开就闪退。可能是SDK/libs/armeabi/libmegjb.so在打包过程中丢失。利用ApkTool解压生成的apk包，查看文件夹armeabi-v7a中是否含有libmegjb.so。如果没有，在Unity3D中将libmegjb.so拷贝到Assets/Plugins/Andorid/armeabi-v7a。如果没有此文件，新建此文件夹。 <br/>
+<em>注意，有关libmegjb.so丢失的解决方法是给予我的尝试，没有理论依据。</em></li>
+</ul>
+
+
+
+        <div id="disqus_container">
+            <div style="margin-bottom:20px" class="right">
+                <script type="text/javascript" charset="utf-8">
+                (function(){
+                  var _w = 86 , _h = 16;
+                  var param = {
+                    url:location.href,
+                    type:'6',
+                    count:'', /**是否显示分享数，1显示(可选)*/
+                    appkey:'', /**您申请的应用appkey,显示分享来源(可选)*/
+                    title:'', /**分享的文字内容(可选，默认为所在页面的title)*/
+                    pic:'', /**分享图片的路径(可选)*/
+                    ralateUid:'1855270953', /**关联用户的UID，分享微博会@该用户(可选)*/
+                    language:'zh_cn', /**设置语言，zh_cn|zh_tw(可选)*/
+                    rnd:new Date().valueOf()
+                  }
+                  var temp = [];
+                  for( var p in param ){
+                    temp.push(p + '=' + encodeURIComponent( param[p] || '' ) )
+                  }
+                  document.write('<iframe allowTransparency="true" frameborder="0" scrolling="no" src="http://hits.sinajs.cn/A1/weiboshare.html?' + temp.join('&') + '" width="'+ _w+'" height="'+_h+'"></iframe>')
+                })()
+                </script>
+            </div>
+            <a href="#" class="comment" onclick="return false;">Comments(评论)</a>
+            <div id="disqus_thread"></div>
+        </div>
+    </div>
+
+    <div class="sidenav">
+        <iframe width="100%" height="75" class="share_self"  frameborder="0" scrolling="no" src="http://widget.weibo.com/weiboshow/index.php?language=&width=0&height=100&fansRow=2&ptype=0&speed=0&skin=1&isTitle=0&noborder=0&isWeibo=0&isFans=0&uid=2615973073&verifier=56a6017b&dpc=1"></iframe>
+    </div>
+
+    <div class="sidenav">
+        <h2>Blog</h2>
+        <ul class="artical-list">
+        
+            <li><a href="/AndGame-SDK-Intersection-CHS">Unity3D项目接入移动基地（和游戏）SDK</a></li>
+        
+            <li><a href="/cpp-iterator-std-study-EN%20copy">A Review of Iterator and Several std methods</a></li>
+        
+            <li><a href="/cpp-iterator-std-study-CHS">对于c++中有关iterator的学习以及几个std方法的理解</a></li>
+        
+            <li><a href="/first-entry">First Entry</a></li>
+        
+            <li><a href="/ranger-of-the-abyss">Ranger of the Abyss</a></li>
+        
+            <li><a href="/The-Queen-from-TerMur">The Queen from TerMur</a></li>
+        
+            <li><a href="/im-a-google-fan">我们的小叮噹</a></li>
+        
+            <li><a href="/bell-of-courage">Bell of Courage (Shadowlord denfeated, Oceania）</a></li>
+        
+            <li><a href="/LadyDawn-ShadowLoard">与暗影之王的决战</a></li>
+        
+            <li><a href="/bo-yang-pass-away">Easter Egges in Oceania</a></li>
+        
+            <li><a href="/LordBritish-was-assassinated">刺杀不列颠之王</a></li>
+        
+            <li><a href="/bo-yang-pass-away">Beautiful houses in UO</a></li>
+        
+            <li><a href="/wordpress-books-delivered">goodbye torrentspy</a></li>
+        
+            <li><a href="/jing-du-yi-ding-shu">介绍《京都议定书》大体内容并且试论美国缺席状态下的《京都议定书》的国际法效力，经济法特征，以及其对于国际气候变迁法的发展所带来的影响</a></li>
+        
+            <li><a href="/rain-again">又下雨了</a></li>
+        
+            <li><a href="/if-don't%20-do-it-now">有些事如果现在不做，就一辈子不会去做了</a></li>
+        
+            <li><a href="/bye-bye-wanzi">Bye bye, 丸子</a></li>
+        
+            <li><a href="/bo-yang-pass-away">先生，下次要做哪里人？</a></li>
+        
+            <li><a href="/religious-activities">楼下的宗教活动</a></li>
+        
+            <li><a href="/lan-ye-she">丁三，蓝衣社的碎片，少年中国学会</a></li>
+        
+            <li><a href="/He-has-gone">He has gone</a></li>
+        
+            <li><a href="/wine-county-canberra">Wine Country,Canberra</a></li>
+        
+            <li><a href="/city-trip">今天去city</a></li>
+        
+            <li><a href="/interesting-thing">今天遇到的几件有趣的事</a></li>
+        
+            <li><a href="/second-half-of-24-years-old">24岁的九局下半</a></li>
+        
+            <li><a href="/Aus-Club">澳洲的CLUB</a></li>
+        
+            <li><a href="/smell-of-summer">夏天到了</a></li>
+        
+            <li><a href="/path-of-WuZangYe">转_五藏野的路</a></li>
+        
+            <li><a href="/av-treasure">片冢</a></li>
+        
+            <li><a href="/jiu-zhou-fall">九州 坍塌</a></li>
+        
+            <li><a href="/MagicYang-NSL">NSL线下决赛——MagicYang</a></li>
+        
+            <li><a href="/Xu-Dan-Yin-Yue-He">徐丹</a></li>
+        
+            <li><a href="/winter-in-beijing">北京的冬天</a></li>
+        
+            <li><a href="/songOfIceAndFire-done">读完了《冰与火之歌1-3》（A Song of Ice and Fire)</a></li>
+        
+            <li><a href="/Babel">Babel</a></li>
+        
+            <li><a href="/Thinking">思维的乐趣</a></li>
+        
+            <li><a href="/yu-dan">论语心得_于丹老师的杂耍</a></li>
+        
+            <li><a href="/JamesBond">Bond,James Bond</a></li>
+        
+            <li><a href="/cctv">CCTV可以无耻到这个地步</a></li>
+        
+            <li><a href="/graduation">毕业</a></li>
+        
+            <li><a href="/ding-zi-hu">钉子户</a></li>
+        
+            <li><a href="/Assassins_Apprentice-done">刺客学徒 完成</a></li>
+        
+            <li><a href="/after-shock">余震</a></li>
+        
+            <li><a href="/W3">W3新赛季揭幕战</a></li>
+        
+            <li><a href="/a-mess-day">今天真是混乱</a></li>
+        
+            <li><a href="/Derek-left-today">今天我当家</a></li>
+        
+            <li><a href="/firefox-dosenot-work">Firefox不中用了</a></li>
+        
+            <li><a href="/books-2nd-delivery">第二批书也到了_2006/12/22</a></li>
+        
+            <li><a href="/sincity">Sin City</a></li>
+        
+            <li><a href="/My-AgathaChristie">我的新宠——阿加莎christie_2006/12/21</a></li>
+        
+            <li><a href="/hart-to-customise-blog">看来美化blog还是比较难的_2006/12/20</a></li>
+        
+            <li><a href="/wordpress-books-delivered">买的书到了_2006/12/19</a></li>
+        
+            <li><a href="/im-a-google-fan">很快，我也会变成 google Fans_2006/12/20</a></li>
+        
+            <li><a href="/wordpress-the-first-day">第一天_2006/12/17</a></li>
+        
+        </ul>
+
+        <h2>About</h2>
+        <ul class="artical-list">
+        
+        </ul>
+
+        <h2>Project</h2>
+        <ul class="artical-list">
+        
+            <li><a href="/School-Project">School Project</a></li>
+        
+        </ul>
+    </div>
+</div>
+
+<script src="/js/post.js" type="text/javascript"></script>
+
+
+    <script type="text/javascript">
+        $(function(){
+            $('.home-follow').click(function(e){
+                e.preventDefault();
+
+                if($('.home-contact').is(':visible')){
+                    $('.home-contact').slideUp(100);
+                }else{
+                    $('.home-contact').slideDown(100);
+                }
+            });
+        })
+    </script>
+</body>
+</html>

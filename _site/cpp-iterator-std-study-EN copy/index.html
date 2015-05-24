@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <!--
+    * Author:         Template credit belongs to BeiYuu
+    -->
+    <meta charset="utf-8" />
+    <title>A Review of Iterator and Several std methods | birdinforest</title>
+    <meta name="author" content="DerekW" />
+    <meta name="renderer" content="webkit">
+    <meta name="description" content="DerekW's Blog" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0">
+    <link rel="stylesheet" href="/css/default.css" type="text/css" />
+    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" />
+    <link rel="alternate" type="application/atom+xml" title="Recent Entries" href="/atom.xml" />
+    <script src="/js/jquery-1.7.1.min.js" type="text/javascript"></script>
+</head>
+<body>
+
+    <div class="home-menu">
+        <div class="home-icon-con">
+            <a class="home-menu-icon" href="/">DerekW</a>
+            <a class="home-follow" href="#" title="Contact Me">+</a>
+        </div>
+        <div class="home-contact">
+            <a href="http://weibo.com/ForrrestW" target="_blank" style="margin-left:-5px;"><img src="http://www.weibo.com/favicon.ico" alt="" width="25"/></a>
+            <a href="http://www.douban.com/people/1388208/" target="_blank" style="text-align:center;"><img src="http://www.douban.com/favicon.ico" alt="" width="22"/></a>
+			<!--
+            <a href="http://instagram.com/beiyuu/" target="_blank" style="text-align:right"><img src="http://d36xtkk24g8jdx.cloudfront.net/bluebar/00c6602/images/ico/favicon.ico" alt="" width="22"/></a>
+			-->
+        </div>
+    </div>
+
+    <link rel="stylesheet" href="/js/prettify/prettify.css" />
+<style type="text/css">
+    body { background:#e8e8e8; }
+    @media screen and (max-width: 750px){
+        body { background:#fff; }
+    }
+    @media screen and (max-width: 1020px){
+        body { background:#fff; }
+    }
+</style>
+
+<div id="content">
+    <div class="entry">
+        <h1 class="entry-title"><a href="/cpp-iterator-std-study-EN%20copy" title="A Review of Iterator and Several std methods">A Review of Iterator and Several std methods</a></h1>
+        <p class="entry-date">2014-05-30</p>
+        <p><strong>As a C++ learner, my points and code might be incorrect or incaccurate. I will update this article during future study.</strong>
+<strong>This article could also be taken as a practic of english writing from a non native english spearker.LOL</strong></p>
+
+<h2>Start</h2>
+
+<p>Recently I am confused about how to create a skill buff system, to apply several buff and, what is more important, to correctly unapply those
+buff(Debuff). Then I did some search online, finally got <a href="http://gamedev.stackexchange.com/questions/46772/how-to-implement-buffs-debuffs-temporary-stat-changes-in-an-rpg">this</a> on StatckExchange. In this thread Laurent Couvidou gives out a very detailed
+answer. His answer includes a line using std methods, which let me confused since I only know std containers like List, Vector and some simple methods.
+So that I decided to do a simple study of those std methods.</p>
+
+<p>Following is the code which confused me:</p>
+
+<pre><code>buffList.remove_if(std::mem_fun(&amp;Buff::hasTimedOut));
+</code></pre>
+
+<p>Laurent Couvidou credits it to a answer from <a href="http://stackoverflow.com/a/596708/1005455">StackOverflow</a>.</p>
+
+<h2>Move on</h2>
+
+<p>Then I walked into another class room. There, someone asked a similiar question: how to remove a skill from skill list immediately after a undate.</p>
+
+<p>His code likes this:</p>
+
+<pre><code>for (std::list&lt;item*&gt;::iterator i=items.begin();i!=items.end();i++)
+{
+    bool isActive = (*i)-&gt;update();
+    //if (!isActive) 
+    //  items.remove(*i); 
+    //else
+       other_code_involving(*i);
+}
+items.remove_if(CheckItemNotActive);
+</code></pre>
+
+<p>But get "List iterator not incrementable" error while doing i++.
+Then I recalled that I did the same thing several months ago, but can't remember how to fixed it.That is why I start to write blog. We Chinese says that "The palest ink is better than the best memory".</p>
+
+<h4>My understanding</h4>
+
+<p>Like the role of template, which is helping programmer to handle any type of data, the iterator is used to handle elements inside the different container. Internal structs of iterators from List and Vector might be different, but programmer can use them in the similiar way.</p>
+
+<blockquote><p>...each container class(vector, list, deque, and so on) defines an iterator type appropriate to the class. For one class, the iterator might be apointer; for another, it might be an object【C++ Primer Plus，P995】</p></blockquote>
+
+<ul>
+<li>question：I understand that a iterator is a pointer. But I don't know what kind of iterator could be a object.</li>
+</ul>
+
+
+<h4>My lab</h4>
+
+<p>I created a list and a vector, both contain 10 int(1 to 10). Then remove odd numbers from the container by a 'for' loop and a 'while' loop</p>
+
+<p>In debug mode, I find that a iterator of std::List is pointing to a node, which contains nextLink, preLink, and value.( In class, I practiced to create a customized bio direction list. )</p>
+
+<p>After list.erase(itor), that node losts its feature as a iterator.(But I noted that its value is the same to list.end() now.) List.erase(itor) returns the next iterator(++itor). So it can't be increased.</p>
+
+<p>Follwing code gets "List iterator not incrementable" error:</p>
+
+<pre><code>std::list&lt;int&gt; intList;
+for (int i = 0; i &lt; 10; ++i)
+{
+    intList.push_back(i);
+}
+
+for (std::list&lt;int&gt;::iterator i = intList.begin(); i != intList.end(); ++i)
+{
+    if (*itor % 2 == 1)
+    {
+        intList.erase(itor);
+    }
+}
+</code></pre>
+
+<p>We can avoid that error by changing it to:</p>
+
+<pre><code>std::list&lt;int&gt; intList;
+for (int i = 0; i &lt; 10; ++i)
+{
+    intList.push_back(i);
+}
+
+for (std::list&lt;int&gt;::iterator i = intList.begin(); i != intList.end(); ++i)
+{
+    if (*itor % 2 == 1)
+    {
+        intList.erase(itor++);
+        // or itor = intList.erase(itor);
+    }
+    else
+        ++itor;
+}
+</code></pre>
+
+<p>That due to the difference between pre-increment and post-increment operators.</p>
+
+<pre><code>intList.erase(itor++);
+intList.erase(++itor);
+</code></pre>
+
+<p>For ++itor(fake code)</p>
+
+<pre><code>return itor += 1；
+</code></pre>
+
+<p>For itor ++(fake code)</p>
+
+<pre><code>copyItor = *this;
+*this += 1;
+return copyItor;
+</code></pre>
+
+<p><strong>（So that, most people argues that using ++i has a performance gain. I guess it is real at least in c++.）</strong></p>
+
+<p>Moreover，we should implement the 'while' loop to avoid skipping one element per iteration . And a good person in thread reminds that itor = intList.erase(itor) is safer. Yes, he is correct because the lazy coding( intList.erase(itor++) ) cause "iterator is incompatible" error.</p>
+
+<p>Test code for vector:</p>
+
+<pre><code>std::vector&lt;int&gt; intVector;
+for (int i = 0; i &lt; 10; ++i)
+{
+    intVector.push_back(i);
+}
+
+std::Vector&lt;int&gt;::iterator itor = intVector.begin();
+while (itor != intVector.end())
+{
+    if (*itor % 2 == 1)
+    {
+        //itor = intVector.erase(itor);
+        intVector.erase(itor++);
+    }
+    else
+        ++itor;
+}
+</code></pre>
+
+<p>About to the reason of this issue, Eric Seppanen says:</p>
+
+<blockquote><p>The alternate usage i = items.erase(i) is safer, because it's equivalent for a list, but will still work if someone changes the container to a vector. With a vector, erase() moves everything to the left to fill the hole. If you try to remove the last item with code that increments the iterator after erasing, the end moves to the left, and the iterator moves to the right-- past the end. And then you crash.</p></blockquote>
+
+<p>However, in my test, before removing the last element, I got error message after the first erase operation. The process is as following:</p>
+
+<p>When itor==1，genrate:</p>
+
+<pre><code>    if (*itor % 2 == 1)
+    {
+        //itor = intVector.erase(itor);
+        intVector.erase(itor++);
+    }
+</code></pre>
+
+<p>After it erase int 1, in watch window, I find that itor's value is 3(int 2 moves left by one step, iterator moves right by one step). So that, It looks that the problem should be skipping one element. It is strange to crash by a comparibility problem.</p>
+
+<h4>Memery address observation in debug</h4>
+
+<p>itor==1，pre-erase state. [ptr]:0x004aab74{1}。</p>
+
+<p><img src="/images/blog/cpp_iterator_001.jpg" alt="Alt text" /></p>
+
+<p>after intVector.erase(itor++). [ptr]0x004aab78{3}。I assume that [ptr]:0x004aab74 should be 2。</p>
+
+<p><img src="/images/blog/cpp_iterator_002.jpg" alt="Alt text" /></p>
+
+<p><strong>In above image, I noted that std::Iterator_base12 is nullprt。</strong></p>
+
+<p>Then the code move to next step. For while loop, go to comparing( if(itor != intVector.end()) ), crash
+<img src="/images/blog/cpp_iterator_003.jpg" alt="Alt text" /></p>
+
+<p>For for loop, go to iteration( ++itor ), crash
+<img src="/images/blog/cpp_iterator_004.jpg" alt="Alt text" /></p>
+
+<ul>
+<li>question: I think, in this case, the struct of itorator is changed. But I want to know how does it changed?</li>
+</ul>
+
+
+<h2>The answer of 'How to remove the post-updated skill from list'</h2>
+
+<p><a href="http://stackoverflow.com/users/65004/mike" title="Mike">Mike</a> gives answer:</p>
+
+<pre><code>// Note: Using the pre-increment operator is preferred     for iterators because
+//       there can be a performance gain.
+//
+// Note: As long as you are iterating from beginning to     end, without inserting
+//       along the way you can safely save end once;     otherwise get it at the
+//       top of each loop.
+
+std::list&lt; item * &gt;::iterator iter = items.begin();
+std::list&lt; item * &gt;::iterator end  = items.end();
+
+while (iter != items.end())
+{
+    item * pItem = *iter;
+
+    if (pItem-&gt;update() == true)
+    {
+        other_code_involving(pItem);
+        ++iter;
+    }
+    else
+    {
+        // BTW, who is deleting pItem, a.k.a. (*iter)?
+        iter = items.erase(iter);
+    }
+}
+</code></pre>
+
+<p>Then, he gives a specific answer for skill update system</p>
+
+<pre><code>// This implementation of update executes     other_code_involving(Item *) if
+// this instance needs updating.
+//
+// This method returns true if this still needs future     updates.
+//
+bool Item::update(void)
+{
+    if (m_needsUpdates == true)
+    {
+        m_needsUpdates = other_code_involving(this);
+    }
+
+    return (m_needsUpdates);
+}
+
+// This call does everything the previous loop did!!!     (Including the fact
+// that it isn't deleting the items that are erased!)
+items.remove_if(std::not1(std::mem_fun(&amp;Item::update)));
+</code></pre>
+
+<p>This is a gem(for me at least):</p>
+
+<pre><code>items.remove_if(std::not1(std::mem_fun(&amp;Item::update)));
+</code></pre>
+
+<h2>My understanding for those STD methods</h2>
+
+<p>Before practical experience, my understanding is simple and could be wrong.</p>
+
+<h4>std::mem_fun</h4>
+
+<p>Generate a function object, which is Item::update here, then return its result. In this example, the result is a boolean value.</p>
+
+<h4>std::transform</h4>
+
+<p>std::transform is implemented in std::mem_fun.
+This method could include a input parameter, a output parameter and a function object.
+It calls the function by the input parameter( if the parameter is a container, it will use every item in the list as parameter of the funcion ), then put result into output parameter(if the output parameter is a containner, result will be put into container one by one)</p>
+
+<p><a href="http://www.cplusplus.com/reference/algorithm/transform/">Test code</a>：</p>
+
+<pre><code>int op_increase (int i) { return ++i; }
+
+// example of std::transform
+void std_transform()
+{
+    std::vector&lt;int&gt; foo;
+    std::vector&lt;int&gt; bar;
+
+    // set some values:
+    for (int i=1; i&lt;6; i++)
+        foo.push_back (i*10);                         // foo: 10 20 30 40 50
+
+    bar.resize(foo.size());                         // allocate space
+
+    std::transform (foo.begin(), foo.end(), bar.begin(), op_increase);
+    // bar: 11 21 31 41 51
+
+    // std::plus adds together its two arguments:
+    std::transform (foo.begin(), foo.end(), bar.begin(), foo.begin(), std::plus&lt;int&gt;());
+    // foo: 21 41 61 81 101
+
+    std::cout &lt;&lt; "foo contains:";
+    for (std::vector&lt;int&gt;::iterator it=foo.begin(); it!=foo.end(); ++it)
+        std::cout &lt;&lt; ' ' &lt;&lt; *it;
+    std::cout &lt;&lt; '\n';
+}
+</code></pre>
+
+<h4>std::not1</h4>
+
+<p>Return the oppsite of boolean value. In this case, if the skill has been updated, return true.</p>
+
+<h4>std::remove_if</h4>
+
+<p>Remove the elements if it match the condition。
+*<a href="http://www.cplusplus.com/reference/algorithm/remove_if/">Aprroach of std::remove_if in C++11</a>：</p>
+
+<pre><code>enter code hertemplate &lt;class ForwardIterator, class UnaryPredicate&gt;
+ForwardIterator remove_if (ForwardIterator first, ForwardIterator last, UnaryPredicate pred)
+{
+  ForwardIterator result = first;
+  while (first!=last) {
+    if (!pred(*first)) {
+      *result = std::move(*first);
+      ++result;
+    }
+    ++first;
+  }
+  return result;
+}
+</code></pre>
+
+<h4>std::move</h4>
+
+<p>It gets the rvalue reference of parameter，convert it to xvalue。
+According to the <a href="http://en.cppreference.com/w/cpp/utility/move">example code</a></p>
+
+<pre><code>std::string str = "Hello";
+std::vector&lt;std::string&gt; v;
+v.push_back(std::move(str));
+</code></pre>
+
+<p>Move string in str to Vector v, avoding copy process。Now str=""。
+Following feature is very intersting:</p>
+
+<pre><code>// string move assignment operator is often implemented as swap,
+// in this case, the moved-from object is NOT empty
+std::string str2 = "Good-bye";
+std::cout &lt;&lt; "Before move from str2, str2 = '" &lt;&lt; str2 &lt;&lt; "'\n";
+v[0] = std::move(str2);
+std::cout &lt;&lt; "After move from str2, str2 = '" &lt;&lt; str2 &lt;&lt; "'\n";
+</code></pre>
+
+<p>output:</p>
+
+<p>Before move from str2, str2 = 'Good-bye'</p>
+
+<p>After move from str2, str2 = 'Hello'</p>
+
+<h2>TODO</h2>
+
+<ul>
+<li>Figure out what the Vector itertor is diffenrent from others</li>
+<li>Try to use these std methords in my future practice</li>
+<li>Learn more about data structure</li>
+</ul>
+
+
+
+        <div id="disqus_container">
+            <div style="margin-bottom:20px" class="right">
+                <script type="text/javascript" charset="utf-8">
+                (function(){
+                  var _w = 86 , _h = 16;
+                  var param = {
+                    url:location.href,
+                    type:'6',
+                    count:'', /**是否显示分享数，1显示(可选)*/
+                    appkey:'', /**您申请的应用appkey,显示分享来源(可选)*/
+                    title:'', /**分享的文字内容(可选，默认为所在页面的title)*/
+                    pic:'', /**分享图片的路径(可选)*/
+                    ralateUid:'1855270953', /**关联用户的UID，分享微博会@该用户(可选)*/
+                    language:'zh_cn', /**设置语言，zh_cn|zh_tw(可选)*/
+                    rnd:new Date().valueOf()
+                  }
+                  var temp = [];
+                  for( var p in param ){
+                    temp.push(p + '=' + encodeURIComponent( param[p] || '' ) )
+                  }
+                  document.write('<iframe allowTransparency="true" frameborder="0" scrolling="no" src="http://hits.sinajs.cn/A1/weiboshare.html?' + temp.join('&') + '" width="'+ _w+'" height="'+_h+'"></iframe>')
+                })()
+                </script>
+            </div>
+            <a href="#" class="comment" onclick="return false;">Comments(评论)</a>
+            <div id="disqus_thread"></div>
+        </div>
+    </div>
+
+    <div class="sidenav">
+        <iframe width="100%" height="75" class="share_self"  frameborder="0" scrolling="no" src="http://widget.weibo.com/weiboshow/index.php?language=&width=0&height=100&fansRow=2&ptype=0&speed=0&skin=1&isTitle=0&noborder=0&isWeibo=0&isFans=0&uid=2615973073&verifier=56a6017b&dpc=1"></iframe>
+    </div>
+
+    <div class="sidenav">
+        <h2>Blog</h2>
+        <ul class="artical-list">
+        
+            <li><a href="/AndGame-SDK-Intersection-CHS">Unity3D项目接入移动基地（和游戏）SDK</a></li>
+        
+            <li><a href="/cpp-iterator-std-study-EN%20copy">A Review of Iterator and Several std methods</a></li>
+        
+            <li><a href="/cpp-iterator-std-study-CHS">对于c++中有关iterator的学习以及几个std方法的理解</a></li>
+        
+            <li><a href="/first-entry">First Entry</a></li>
+        
+            <li><a href="/ranger-of-the-abyss">Ranger of the Abyss</a></li>
+        
+            <li><a href="/The-Queen-from-TerMur">The Queen from TerMur</a></li>
+        
+            <li><a href="/im-a-google-fan">我们的小叮噹</a></li>
+        
+            <li><a href="/bell-of-courage">Bell of Courage (Shadowlord denfeated, Oceania）</a></li>
+        
+            <li><a href="/LadyDawn-ShadowLoard">与暗影之王的决战</a></li>
+        
+            <li><a href="/bo-yang-pass-away">Easter Egges in Oceania</a></li>
+        
+            <li><a href="/LordBritish-was-assassinated">刺杀不列颠之王</a></li>
+        
+            <li><a href="/bo-yang-pass-away">Beautiful houses in UO</a></li>
+        
+            <li><a href="/wordpress-books-delivered">goodbye torrentspy</a></li>
+        
+            <li><a href="/jing-du-yi-ding-shu">介绍《京都议定书》大体内容并且试论美国缺席状态下的《京都议定书》的国际法效力，经济法特征，以及其对于国际气候变迁法的发展所带来的影响</a></li>
+        
+            <li><a href="/rain-again">又下雨了</a></li>
+        
+            <li><a href="/if-don't%20-do-it-now">有些事如果现在不做，就一辈子不会去做了</a></li>
+        
+            <li><a href="/bye-bye-wanzi">Bye bye, 丸子</a></li>
+        
+            <li><a href="/bo-yang-pass-away">先生，下次要做哪里人？</a></li>
+        
+            <li><a href="/religious-activities">楼下的宗教活动</a></li>
+        
+            <li><a href="/lan-ye-she">丁三，蓝衣社的碎片，少年中国学会</a></li>
+        
+            <li><a href="/He-has-gone">He has gone</a></li>
+        
+            <li><a href="/wine-county-canberra">Wine Country,Canberra</a></li>
+        
+            <li><a href="/city-trip">今天去city</a></li>
+        
+            <li><a href="/interesting-thing">今天遇到的几件有趣的事</a></li>
+        
+            <li><a href="/second-half-of-24-years-old">24岁的九局下半</a></li>
+        
+            <li><a href="/Aus-Club">澳洲的CLUB</a></li>
+        
+            <li><a href="/smell-of-summer">夏天到了</a></li>
+        
+            <li><a href="/path-of-WuZangYe">转_五藏野的路</a></li>
+        
+            <li><a href="/av-treasure">片冢</a></li>
+        
+            <li><a href="/jiu-zhou-fall">九州 坍塌</a></li>
+        
+            <li><a href="/MagicYang-NSL">NSL线下决赛——MagicYang</a></li>
+        
+            <li><a href="/Xu-Dan-Yin-Yue-He">徐丹</a></li>
+        
+            <li><a href="/winter-in-beijing">北京的冬天</a></li>
+        
+            <li><a href="/songOfIceAndFire-done">读完了《冰与火之歌1-3》（A Song of Ice and Fire)</a></li>
+        
+            <li><a href="/Babel">Babel</a></li>
+        
+            <li><a href="/Thinking">思维的乐趣</a></li>
+        
+            <li><a href="/yu-dan">论语心得_于丹老师的杂耍</a></li>
+        
+            <li><a href="/JamesBond">Bond,James Bond</a></li>
+        
+            <li><a href="/cctv">CCTV可以无耻到这个地步</a></li>
+        
+            <li><a href="/graduation">毕业</a></li>
+        
+            <li><a href="/ding-zi-hu">钉子户</a></li>
+        
+            <li><a href="/Assassins_Apprentice-done">刺客学徒 完成</a></li>
+        
+            <li><a href="/after-shock">余震</a></li>
+        
+            <li><a href="/W3">W3新赛季揭幕战</a></li>
+        
+            <li><a href="/a-mess-day">今天真是混乱</a></li>
+        
+            <li><a href="/Derek-left-today">今天我当家</a></li>
+        
+            <li><a href="/firefox-dosenot-work">Firefox不中用了</a></li>
+        
+            <li><a href="/books-2nd-delivery">第二批书也到了_2006/12/22</a></li>
+        
+            <li><a href="/sincity">Sin City</a></li>
+        
+            <li><a href="/My-AgathaChristie">我的新宠——阿加莎christie_2006/12/21</a></li>
+        
+            <li><a href="/hart-to-customise-blog">看来美化blog还是比较难的_2006/12/20</a></li>
+        
+            <li><a href="/wordpress-books-delivered">买的书到了_2006/12/19</a></li>
+        
+            <li><a href="/im-a-google-fan">很快，我也会变成 google Fans_2006/12/20</a></li>
+        
+            <li><a href="/wordpress-the-first-day">第一天_2006/12/17</a></li>
+        
+        </ul>
+
+        <h2>About</h2>
+        <ul class="artical-list">
+        
+        </ul>
+
+        <h2>Project</h2>
+        <ul class="artical-list">
+        
+            <li><a href="/School-Project">School Project</a></li>
+        
+        </ul>
+    </div>
+</div>
+
+<script src="/js/post.js" type="text/javascript"></script>
+
+
+    <script type="text/javascript">
+        $(function(){
+            $('.home-follow').click(function(e){
+                e.preventDefault();
+
+                if($('.home-contact').is(':visible')){
+                    $('.home-contact').slideUp(100);
+                }else{
+                    $('.home-contact').slideDown(100);
+                }
+            });
+        })
+    </script>
+</body>
+</html>
