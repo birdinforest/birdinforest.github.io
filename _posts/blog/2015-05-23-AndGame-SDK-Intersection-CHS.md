@@ -10,9 +10,9 @@ description: 有关移动基地（咪咕）SDK接入的流程
 **适用版本V2.2.3**
 ###拷贝文件###
 + 将SDK文件夹中的assets，libs，res，三个文件夹拷入Assets/Plugins/Android/。
-+ 将SDK文件夹中Unity3D文件夹中的CMBillingForUnity.jar拷贝到Assets/Plugins/Android/libs.
-+ 将SDK文件夹中Unity3D文件夹中的CMBillingAndroid.cs拷贝到/Plugins/Android/.
-+ 将SDK文件夹中Unity3D文件夹中的CMBillingAndroid.cs拷贝到/Plugins/Android/.
++ 将SDK文件夹中的CMBillingForUnity.jar拷贝到Assets/Plugins/Android/libs.
++ 将SDK文件夹中的CMBillingAndroid.cs拷贝到/Plugins/Android/.
++ 将SDK文件夹中的CMBillingAndroid.cs拷贝到/Plugins/Android/.
 
 ###编辑xml文件###
 编辑Plugins\Android\res\values\g_strings.xml，将游戏主入口(通常为com.unity3d,player.UnityPlayerActivity)填入: <string name="g_class_name">om.unity3d,player.UnityPlayerActivity</string>
