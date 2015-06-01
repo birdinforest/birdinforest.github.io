@@ -12,19 +12,24 @@ description: 有关移动基地（咪咕）SDK接入的流程
 + 将SDK文件夹中的assets，libs，res，三个文件夹拷入Assets/Plugins/Android/。
 + 将SDK文件夹中的CMBillingForUnity.jar拷贝到Assets/Plugins/Android/libs.
 + 将SDK文件夹中的CMBillingAndroid.cs拷贝到/Plugins/Android/.
-+ 将SDK文件夹中的CMBillingAndroid.cs拷贝到/Plugins/Android/.
++ 将SDK文件夹中的CMBillingAndroidDemo.cs拷贝到/Plugins/Android/.
 
 ###编辑xml文件###
-编辑Plugins\Android\res\values\g_strings.xml，将游戏主入口(通常为com.unity3d,player.UnityPlayerActivity)填入: <string name="g_class_name">om.unity3d,player.UnityPlayerActivity</string>
+编辑Plugins\Android\res\values\g_strings.xml，将游戏主入口(通常为com.unity3d,player.UnityPlayerActivity)填入: 
+
+```xml
+<string name="g_class_name">om.unity3d,player.UnityPlayerActivity</string>
+```
+
 ###生成自定义Application所需要的jar文件###
 ####eclipse####
-建一个新的project：New->Other...->Android->Android Application Project->Next。此时来到New Android Application对话框，填入的包名（Package Name）必须与Unity3D项目的Bundle Identifier一致，在这里已com.test.sdk为例。Application Name和Project Name可以随意。然后点击Next->Finish完成project的创建。  
+建一个新的project：New->Other...->Android->Android Application Project->Next。此时来到New Android Application对话框，填入的包名（Package Name）必须与Unity3D项目的Bundle Identifier一致，在这里以com.test.sdk为例。Application Name和Project Name可以随意。然后点击Next->Finish完成project的创建。  
 在eclipse的Project Explore中，找到src/com.test.sdk/，点击右键->New->Class新建一个java文件,文件名必须是CmgameApplication。在文件中输入以下代码：
 
 ```java
     package com.sweatychair.gotoschool;
 
-    import android.app.Application;
+    import android.text.sdk;
     public class CmgameApplication extends Application {
         public void onCreate() {
             System.loadLibrary("megjb");
@@ -35,8 +40,8 @@ description: 有关移动基地（咪咕）SDK接入的流程
 保存。  
 *这段代码扩展了App中的Application类, 在Application初始化的时候，载入library。*  
 删除其他在src/com.test.sdk中的java文件。(通常会有MainActivity.java，删除。)  
-在项目名上点击右键->Export->Java->JAR file。在JAR File Specification对话框中，取消所有选项，勾选bin。在对话框下方，勾选三个选项：Exprot all output folders for checked projects, Export Java source files and resources, Export refactorings for checked projects. 选择输入路径。勾选Compress the contents of the JAR file，点击Finish完成。  
-将jar拷贝到Assets\Plugins\Android\bin
+在项目名上点击右键->Export->Java->JAR file。在JAR File Specification对话框中，取消所有选项，勾选bin。在对话框下方，勾选三个选项：Export all output folders for checked projects, Export Java source files and resources, Export refactorings for checked projects. 选择输入路径。勾选Compress the contents of the JAR file，点击Finish完成。  
+将jar拷贝到Assets/Plugins/Android/bin
 
 ####Android Studio
 [参考文章](http://www.thegamecontriver.com/2015/04/android-plugin-unity-android-studio.html)
